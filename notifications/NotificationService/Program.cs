@@ -5,10 +5,10 @@ using NotificationService.EmailSender;
 
 static IHostBuilder CreateHostBuilder(string[] args)
 {
-	return Host.CreateDefaultBuilder(args)
-		.ConfigureServices((_, services) =>
-			services
-				.AddSingleton<IEmailSender, EmailSender>());
+  return Host.CreateDefaultBuilder(args)
+    .ConfigureServices((_, services) =>
+      services
+        .AddSingleton<IEmailSender, EmailSender>());
 }
 
 using var host = CreateHostBuilder(args).Build();
@@ -16,14 +16,14 @@ Run(host.Services);
 
 static void Run(IServiceProvider services)
 {
-	var root = Directory.GetCurrentDirectory();
-	var dotenv = Path.Combine(root, ".env");
-	DotEnv.Load(dotenv);
+  var root = Directory.GetCurrentDirectory();
+  var dotenv = Path.Combine(root, ".env");
+  DotEnv.Load(dotenv);
 
-	using var serviceScope = services.CreateScope();
-	var provider = serviceScope.ServiceProvider;
+  using var serviceScope = services.CreateScope();
+  var provider = serviceScope.ServiceProvider;
 
-	var emailSender = provider.GetRequiredService<IEmailSender>();
+  var emailSender = provider.GetRequiredService<IEmailSender>();
 
-	emailSender.SendEmail("242527@student.pwr.edu.pl", "Elemele", "XDDD");
+  emailSender.SendEmail("242527@student.pwr.edu.pl", "Elemele", "XDDD");
 }
