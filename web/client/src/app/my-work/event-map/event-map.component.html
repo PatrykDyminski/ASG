@@ -1,0 +1,92 @@
+<div class="contentBorder">
+<div class='map_div'>
+  <div id='map'></div>
+
+  <div class="tab-div">
+<mat-tab-group color="accent" mat-align-tabs="start" [selectedIndex]="selectedTab" (selectedIndexChange)="changedTabHandler($event)">
+
+  <mat-tab  label="Wydarzenia" style="width: auto; height: auto;">
+    <mat-selection-list #events [(ngModel)]="selectedEvent" (ngModelChange)="onNgModelChange($event)" [multiple]="false">
+      <mat-list-option style="min-height:fit-content" *ngFor="let ev of eventS.eventsListPaginator" [value]="ev">
+        <div  >
+         <div style="margin-left: 30px; font-size: 22px; font-weight: bold; padding-top: 10px;">{{ev.nazwa}}
+         </div>
+          <div  style="margin-left: 30px; margin-top: 5px; margin-bottom: 5px;" >
+            {{ev.miejsce}},<span style="width:15px; "></span> {{getMeDate(ev.termin)}}
+          </div>
+      </div>
+      <mat-divider></mat-divider>
+      </mat-list-option>
+    </mat-selection-list>
+    <mat-paginator #paginator
+               [length]="eventS.eventsListSearch?.length"
+               [pageSize]="10"
+               [pageSizeOptions]="[10]"
+               (page)="changePage($event)">
+
+</mat-paginator>
+  </mat-tab>
+  <div *ngIf="this.loginS.logged===true">
+  <mat-tab label="Moje wydarzenia">
+
+    <div *ngFor="let ev of eventS.userEventsPaginator; let i=index;" style="display: flex; flex-direction: row;">
+      <div    style="height:60px; cursor: pointer; width: 80%; display: inline-block;" (click)="userEventToShow(i)"  >
+        <div style="margin-left: 30px; font-size: 22px; font-weight: bold; padding-top: 10px;">{{ev.nazwa}}
+        </div>
+         <div  style="margin-left: 30px; margin-top: 5px; margin-bottom: 5px;" >
+           {{ev.miejsce}}, <span style="width:15px; "></span> {{getMeDate(ev.termin)}}   Zapisani uczestnicy: {{countPlayersEv(ev)}}
+         </div>
+      </div>
+        <div style="width: 20%; height: 60px;  display: inline-flex; flex-direction: row; justify-content: space-around; align-items: center; "*ngIf="ev.organizator._id===this.loginS.user.userID"> <button mat-raised-button (click)="setToEdit(ev)" style="height: fit-content;">Edytuj</button>
+          <button mat-raised-button (click)="deleteEvent(ev)" style="height: fit-content;">Usuń</button>
+        </div>
+
+      <mat-divider></mat-divider>
+    </div>
+
+  <mat-paginator #paginator
+             [length]="eventS.userEventsPaginator.length"
+             [pageSize]="10"
+             [pageSizeOptions]="[10]"
+             (page)="changePage($event)">
+
+</mat-paginator>
+</mat-tab>
+  <mat-tab label="Nowe wydarzenie"><app-event-form [wsp]="wsp" (refreshFeatures)="refreshFeatures()" ></app-event-form></mat-tab>
+</div>
+</mat-tab-group>
+
+<div *ngIf="checkIfShouldDisplay()" class="event-info-display">
+  <div class="event-title">{{eventToDisplay.nazwa}}</div>
+  <mat-divider></mat-divider>
+  <div class="event-essential"><h2>Miejsce: {{eventToDisplay.miejsce}}</h2> <h2>Termin: {{getMeDate(eventToDisplay.termin)}}</h2> <h2> Liczba uczestników: {{countPlayers()}}</h2> <h2> Opłata: {{eventToDisplay.oplata}}zł</h2></div>
+  <mat-divider></mat-divider>
+  <div class="event-description">{{eventToDisplay.opis}}</div>
+  <mat-divider></mat-divider>
+  <div class="event-all-info">
+ <div class="event-factions" >
+    <div *ngIf="disabledButton(); else alreadyIn">
+      <div  *ngFor="let frakcja of eventToDisplay.frakcje" >
+       <div style="min-height: 40px;"><h3 style="display: inline; min-height: 38px; margin: 0;"> {{frakcja.strona}}<span></span> Zapisani: {{frakcja.zapisani.length}}/{{frakcja.wielkosc}}</h3>
+         <button mat-raised-button color="accent"  style="float:right; margin-right: 0;" *ngIf="frakcja.zapisani.length<frakcja.wielkosc" (click)="func(eventToDisplay._id,frakcja.strona)">Dołącz!</button>
+        </div>
+        <mat-divider></mat-divider>
+        </div>
+
+
+     </div>
+     <ng-template #alreadyIn><h3 style="display: inline; min-height: 38px; ">Jesteś już zapisany do frakcji: {{enlistedFraction}}</h3> <button mat-raised-button style=" margin:0; float:right; margin-right: 10%;" (click)="unsignFromEvent(eventToDisplay._id)">Zrezygnuj</button> </ng-template>
+     </div>
+    <div class="event-limits">
+      <div  *ngFor="let limit of eventToDisplay.limity; let i=index"><div style="min-height: 40px; "><div style="display: inline; min-width:150px; height: 100%;"><h3 style="display: inline;">{{replicas[i]}}:</h3></div><span style="display: inline-block; width: 30px;"></span><h3 style="display: inline">{{limit}}</h3></div> <mat-divider ></mat-divider> </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div *ngIf="eventS.eventToEdit!==null" class="event-info-display"  >
+<app-event-editor style="width:90%;" [ev]="eventS.eventToEdit"></app-event-editor>
+</div>
+</div>
+</div>
+
