@@ -11,6 +11,7 @@
       {
         var parts = line.Split(
             '=',
+            2,
             StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length != 2)
