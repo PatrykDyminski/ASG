@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using NotificationService;
 using NotificationService.EmailSender;
+using NotificationService.NotificationSender;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Data.SqlClient;
 using System.Text;
 
 static IHostBuilder CreateHostBuilder(string[] args)
@@ -12,50 +12,12 @@ static IHostBuilder CreateHostBuilder(string[] args)
   return Host.CreateDefaultBuilder(args)
     .ConfigureServices((_, services) =>
       services
-        .AddSingleton<IEmailSender, EmailSender>());
+        .AddSingleton<IEmailSender, EmailSender>()
+        .AddTransient<INotificationSender, NotificationSender>());
 }
 
 using var host = CreateHostBuilder(args).Build();
 Run(host.Services);
-
-static void SQLMagic()
-{
-  try
-  {
-    using SqlConnection connection = new SqlConnection(Environment.GetEnvironmentVariable("CONN_STR"));
-
-    var sql = "SELECT TOP (1000) * FROM [dbo].[Notifications]";
-    using SqlCommand command = new(sql, connection);
-
-    connection.Open();
-    using SqlDataReader reader = command.ExecuteReader();
-
-    while (reader.Read())
-    {
-      Console.WriteLine("{0} {1}", reader.GetString(1), reader.GetString(2));
-    }
-
-    reader.Close();
-    command.Dispose();
-    connection.Close();
-  }
-  catch (SqlException e)
-  {
-    Console.WriteLine(e.ToString());
-  }
-}
-
-static void EFMagic()
-{
-  using var db = new NotificationsContext();
-
-  // Read
-  Console.WriteLine("Querying for a blog");
-  var notif = db.Notifications
-      .First();
-
-  Console.WriteLine(notif.FirstName);
-}
 
 static void Consume(object? model, BasicDeliverEventArgs ea)
 {
@@ -73,9 +35,9 @@ static async void Run(IServiceProvider services)
   using var serviceScope = services.CreateScope();
   var provider = serviceScope.ServiceProvider;
 
-  var emailSender = provider.GetRequiredService<IEmailSender>();
+  var notifSender = provider.GetRequiredService<INotificationSender>();
 
-  var rnd = new Random();
+  notifSender.SendNotifications();
 
   var factory = new ConnectionFactory()
   {
@@ -101,10 +63,6 @@ static async void Run(IServiceProvider services)
   channel.BasicConsume(queue: "hello",
                        autoAck: true,
                        consumer: consumer);
-
-
-  SQLMagic();
-  EFMagic();
 
   Console.WriteLine(" Press [enter] to exit.");
   Console.ReadLine();
