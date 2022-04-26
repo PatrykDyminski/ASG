@@ -5,6 +5,7 @@ namespace NotificationService.NotificationSender;
 internal class NotificationSender : INotificationSender
 {
   private readonly IEmailSender emailSender;
+  private static NotificationsContext context = new();
 
   public NotificationSender(IEmailSender emailSender)
   {
@@ -15,11 +16,9 @@ internal class NotificationSender : INotificationSender
   {
     var now = DateTime.Now;
 
-    using var db = new NotificationsContext();
-
-    if (!db.Notifications.Any())
+    if (!context.Notifications.Any())
     {
-      db.Notifications.Add(new Notification
+      context.Notifications.Add(new Notification
       {
         FirstName = "Pawel",
         LastName = "Kowalski",
@@ -32,20 +31,19 @@ internal class NotificationSender : INotificationSender
       });
     }
 
-    db.SaveChanges();
+    //context.SaveChanges();
 
-    var notif = db.Notifications
-      .Where(n => (bool)!n.FirstNotifSent)
+    var notif = context.Notifications
+      .Where(n => !n.FirstNotifSent)
       .Where(n => n.EventDate > now);
 
-    notif.ToList().ForEach(n => HandleNotif(n, db));
+    notif.ToList().ForEach(n => HandleNotif(n));
   }
 
-  private void HandleNotif(Notification n, NotificationsContext db)
+  private void HandleNotif(Notification n)
   {
     emailSender.SendEmail(n.Email, "Event " + n.EventName, n.EventDate.ToString());
     n.FirstNotifSent = true;
-    db.Notifications.Update(n);
-    db.SaveChanges();
+    context.SaveChanges();
   }
 }

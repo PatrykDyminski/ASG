@@ -24,52 +24,42 @@ namespace NotificationService.Migrations
 
             modelBuilder.Entity("NotificationService.Notification", b =>
                 {
-                    b.Property<int>("PersonId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("PersonID");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PersonId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Email")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("email");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("EventDate")
-                        .HasColumnType("date")
-                        .HasColumnName("eventDate");
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("EventLocation")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("eventLocation");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EventName")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("eventName");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("FirstNotifSent")
+                    b.Property<bool>("FirstNotifSent")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("SecondNotifSent")
+                    b.Property<bool>("SecondNotifSent")
                         .HasColumnType("bit");
 
-                    b.HasKey("PersonId");
+                    b.HasKey("Id");
 
                     b.ToTable("Notifications");
                 });
