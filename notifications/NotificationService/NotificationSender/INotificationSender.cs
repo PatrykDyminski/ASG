@@ -1,4 +1,4 @@
-﻿namespace NotificationService.NotificationSender;
+﻿namespace Notifications.Sender.NotificationSender;
 
 internal interface INotificationSender
 {

@@ -1,4 +1,4 @@
-﻿namespace NotificationService.EmailSender;
+﻿namespace Notifications.Sender.EmailSender;
 
 public interface IEmailSender
 {

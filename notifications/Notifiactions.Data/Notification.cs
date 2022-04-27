@@ -1,4 +1,4 @@
-﻿namespace NotificationService;
+﻿namespace Notifiactions.Data;
 
 public class Notification
 {

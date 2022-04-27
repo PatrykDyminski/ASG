@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NotificationService;
-using NotificationService.EmailSender;
-using NotificationService.NotificationSender;
+using Notifications.Sender;
+using Notifications.Sender.EmailSender;
+using Notifications.Sender.NotificationSender;
 
 static IHostBuilder CreateHostBuilder(string[] args)
 {
@@ -15,8 +15,6 @@ static IHostBuilder CreateHostBuilder(string[] args)
 
 using var host = CreateHostBuilder(args).Build();
 Run(host.Services);
-
-
 
 static async void Run(IServiceProvider services)
 {

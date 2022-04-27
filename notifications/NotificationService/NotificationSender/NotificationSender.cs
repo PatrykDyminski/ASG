@@ -1,6 +1,7 @@
-﻿using NotificationService.EmailSender;
+﻿using Notifiactions.Data;
+using Notifications.Sender.EmailSender;
 
-namespace NotificationService.NotificationSender;
+namespace Notifications.Sender.NotificationSender;
 
 internal class NotificationSender : INotificationSender
 {
@@ -31,7 +32,7 @@ internal class NotificationSender : INotificationSender
       });
     }
 
-    //context.SaveChanges();
+    context.SaveChanges();
 
     var notif = context.Notifications
       .Where(n => !n.FirstNotifSent)

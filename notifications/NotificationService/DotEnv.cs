@@ -1,4 +1,4 @@
-﻿namespace NotificationService
+﻿namespace Notifications.Sender
 {
   public static class DotEnv
   {
