@@ -6,7 +6,7 @@ namespace Notifications.Sender.NotificationSender;
 internal class NotificationSender : INotificationSender
 {
   private readonly IEmailSender emailSender;
-  private static NotificationsContext context = new();
+  private static readonly NotificationsContext context = new();
 
   public NotificationSender(IEmailSender emailSender)
   {
@@ -17,20 +17,18 @@ internal class NotificationSender : INotificationSender
   {
     var now = DateTime.Now;
 
-    if (!context.Notifications.Any())
+    //For demo purposes
+    context.Notifications.Add(new Notification
     {
-      context.Notifications.Add(new Notification
-      {
-        FirstName = "Pawel",
-        LastName = "Kowalski",
-        Email = "242527@student.pwr.edu.pl",
-        EventDate = DateTime.Parse("2022-05-15"),
-        EventName = "AFASFAF",
-        EventLocation = "Wrocuaf",
-        FirstNotifSent = false,
-        SecondNotifSent = false,
-      });
-    }
+      FirstName = "Pawel",
+      LastName = "Kowalski",
+      Email = "242527@student.pwr.edu.pl",
+      EventDate = DateTime.Parse("2022-05-15"),
+      EventName = "AFASFAF",
+      EventLocation = "Wrocuaf",
+      FirstNotifSent = false,
+      SecondNotifSent = false,
+    });
 
     context.SaveChanges();
 

@@ -1,13 +1,15 @@
-﻿using RabbitMQ.Client;
+﻿using Notifiactions.Data;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
 
 namespace QueueListener;
 
 public class EventSignInReceiver : BackgroundService
 {
-  public static string EventSignInCreate = nameof(EventSignInCreate);
-  public static string EventsExchange = nameof(EventsExchange);
+  private static readonly string EventSignInCreate = "UserSignedInForEvent";
+  private static readonly string EventsExchange = "EventsExchange";
 
   private readonly IConnection _connection;
   private readonly IModel _channel;
@@ -36,28 +38,50 @@ public class EventSignInReceiver : BackgroundService
   {
     stoppingToken.ThrowIfCancellationRequested();
 
-    var consumer = new EventingBasicConsumer(_channel);
-
-    consumer.Received += (model, ea) =>
-    {
-      var body = ea.Body.ToArray();
-      var message = Encoding.UTF8.GetString(body);
-      var data = message;
-
-      OnMessageReceived(data);
-    };
-
-    _channel.BasicConsume(
-      queue: EventSignInCreate,
-      autoAck: true,
-      consumer: consumer);
+    _channel.BasicConsume(EventSignInCreate, false, CreateSignInCreateConsumer());
 
     return Task.CompletedTask;
   }
 
-  private void OnMessageReceived(string message)
+  private EventingBasicConsumer CreateSignInCreateConsumer()
   {
+    var consumer = new EventingBasicConsumer(_channel);
+    consumer.Received += (_, ea) => OnSignInCreateReceived(ea);
+    return consumer;
+  }
+
+  private void OnSignInCreateReceived(BasicDeliverEventArgs message)
+  {
+    var notif = JsonSerializer.Deserialize<Notification>(
+      Encoding.UTF8.GetString(
+        message.Body.ToArray()
+      ));
+
+    if (notif == null)
+    {
+      PrintMsg(message);
+      _channel.BasicNack(message.DeliveryTag, false, false);
+    }
+    else
+    {
+      PrintMsg(message);
+      SaveNotification(notif);
+      _channel.BasicAck(message.DeliveryTag, false);
+    }
+  }
+
+  private static void PrintMsg(BasicDeliverEventArgs ea)
+  {
+    var body = ea.Body.ToArray();
+    var message = Encoding.UTF8.GetString(body);
     Console.WriteLine(message);
+  }
+
+  private static void SaveNotification(Notification notification)
+  {
+    NotificationsContext context = new();
+    context.Notifications.Add(notification);
+    context.SaveChanges();
   }
 
   public override void Dispose()
