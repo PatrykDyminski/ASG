@@ -1,0 +1,107 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ASG API",
+    "description": "API gateway for ASG project"
+  },
+  "host": "localhost:3000",
+  "basePath": "/api/",
+  "tags": [
+    {
+      "name": "Notifications",
+      "description": "Endpoints"
+    },
+    {
+      "name": "Payments",
+      "description": "Endpoints"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/test/": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/notifications/send/": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "description": "Test description",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "description": "Test description",
+        "parameters": [],
+        "responses": {}
+      }
+    }
+  },
+  "definitions": {
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "example": "Przypomnienie o wydarzeniu"
+        },
+        "email": {
+          "type": "string",
+          "example": "example@email.com"
+        },
+        "message": {
+          "type": "string",
+          "example": "Przypominamy o nadchodzącym wydarzeniu"
+        }
+      }
+    },
+    "Payment": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "example@email.com"
+            },
+            "name": {
+              "type": "string",
+              "example": "Andrzej Kowalski"
+            }
+          }
+        },
+        "amount": {
+          "type": "number",
+          "example": 29.9
+        },
+        "currency": {
+          "type": "string",
+          "example": "pln"
+        }
+      }
+    }
+  }
+}
