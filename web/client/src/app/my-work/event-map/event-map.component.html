@@ -68,14 +68,23 @@
     <div *ngIf="disabledButton(); else alreadyIn">
       <div  *ngFor="let frakcja of eventToDisplay.frakcje" >
        <div style="min-height: 40px;"><h3 style="display: inline; min-height: 38px; margin: 0;"> {{frakcja.strona}}<span></span> Zapisani: {{frakcja.zapisani.length}}/{{frakcja.wielkosc}}</h3>
-         <button mat-raised-button color="accent"  style="float:right; margin-right: 0;" *ngIf="frakcja.zapisani.length<frakcja.wielkosc" (click)="func(eventToDisplay._id,frakcja.strona)">Dołącz!</button>
+         <button mat-raised-button color="accent"  style="float:right; margin-right: 0;" *ngIf="frakcja.zapisani.length<frakcja.wielkosc" (click)="joinToEvent(eventToDisplay._id,frakcja.strona)">Dołącz!</button>
         </div>
         <mat-divider></mat-divider>
         </div>
 
 
      </div>
-     <ng-template #alreadyIn><h3 style="display: inline; min-height: 38px; ">Jesteś już zapisany do frakcji: {{enlistedFraction}}</h3> <button mat-raised-button style=" margin:0; float:right; margin-right: 10%;" (click)="unsignFromEvent(eventToDisplay._id)">Zrezygnuj</button> </ng-template>
+     <ng-template #alreadyIn><h3 style="display: inline; min-height: 38px; ">Jesteś już zapisany do frakcji: {{enlistedFraction}}</h3> 
+     <div *ngIf="checkIfPayed(eventToDisplay._id); else notPayed">
+      <h3 style="display: inline; min-height: 38px; margin: 0;">Już opłaciłeś wydarzenie. </h3>
+     </div>
+      <ng-template #notPayed>
+      <button mat-rised-button style="margin:0; float:right; margin-right: 10%; display: inline" (click)="payForEvent(eventToDisplay._id)">Opłać</button> 
+      </ng-template>  
+    
+      <button mat-raised-button style=" margin:0; float:right; margin-right: 10%;" (click)="unsignFromEvent(eventToDisplay._id)">Zrezygnuj</button>
+     </ng-template>
      </div>
     <div class="event-limits">
       <div  *ngFor="let limit of eventToDisplay.limity; let i=index"><div style="min-height: 40px; "><div style="display: inline; min-width:150px; height: 100%;"><h3 style="display: inline;">{{replicas[i]}}:</h3></div><span style="display: inline-block; width: 30px;"></span><h3 style="display: inline">{{limit}}</h3></div> <mat-divider ></mat-divider> </div>

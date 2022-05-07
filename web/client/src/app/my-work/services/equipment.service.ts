@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 import {Weapon} from './weapon';
 import {Accesory} from './accesory';
 import {Item} from './item';
-import { createInject } from '@angular/compiler/src/core';
+//import { CreateInjection } from '@angular/compiler/src/core';
 
 @Injectable({
   providedIn: 'root'

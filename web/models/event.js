@@ -1,6 +1,6 @@
 var mongoose=require('mongoose');
 
-var gracz={_id:'', imie:''};
+var gracz={_id:'', imie:'', czy_oplacone: Boolean};
 var frakcja={strona:'', wielkosc: Number, zapisani:[gracz], otwarte: Boolean};
 mongoose.Promise=global.Promise;
 var Schema = mongoose.Schema;

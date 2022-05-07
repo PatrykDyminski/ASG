@@ -1,6 +1,7 @@
+@use '@angular/material' as mat;
 
 
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 
 @mixin loc-theme($theme) {
   $primary: map-get($theme,primary);
@@ -9,10 +10,10 @@
 
 
   .ol-control button{
-    background-color: mat-color($accent);
+    background-color: mat.get-color-from-palette($accent);
   }
  .ol-control button:hover{
-    background-color: mat-color($accent);
+    background-color: mat.get-color-from-palette($accent);
     cursor: pointer;
 
   }
@@ -24,10 +25,10 @@
   }
 
   .iconSize:active{
-    color: mat-color($accent, A400);
+    color: mat.get-color-from-palette($accent, A400);
   }
   .iconSize:hover{
-    color: mat-color($accent, A400);
+    color: mat.get-color-from-palette($accent, A400);
   }
 
 

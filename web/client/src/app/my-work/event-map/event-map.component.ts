@@ -37,6 +37,7 @@ import { first } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { deleteDialogComponent } from '../Snackbars/DeleteDialog';
 import {MatDialogModule} from '@angular/material/dialog';
+import { deletedEventSnackBarComponent } from '../Snackbars/DeletedEvent';
 @Component({
   selector: 'app-event-map',
   templateUrl: './event-map.component.html',
@@ -58,6 +59,7 @@ export class EventMapComponent implements OnInit {
    selectedEvent: EventASG[] = [];
    eventToDisplay: EventASG = null;
    enlistedFraction = '';
+
    response= {message: ''};
     selectedTab = 0;
     wsp = '';
@@ -111,13 +113,20 @@ public disabledButton()
   return true;
 }
 
-  public func(event:string, name:string)
+  public joinToEvent(event:string, name:string)
   {
+    let paymenet_done = false;
     if(this.loginS.logged===true){
-    this.eventS.joinFraction(event,name,this.loginS.user.userID, this.loginS.user.name).subscribe(data=>{
+
+
+      /// logika opłaty za wydarzenie
+      this.paymentLogic();
+
+      //jeżeli opłata się powiodła, przypisać odpowiednią wartość do payment_done
+    this.eventS.joinFraction(event,name,this.loginS.user.userID, this.loginS.user.name, paymenet_done).subscribe(data=>{
       this.response=data ;
       console.log(this.response.message);
-      this.eventS.addPlayerInClient(event,name,this.loginS.user.userID,this.loginS.user.name);
+      this.eventS.addPlayerInClient(event,name,this.loginS.user.userID,this.loginS.user.name, paymenet_done); // false- default dla czy_oplacone
       this.eventToDisplay=this.eventS.eventsList.find((item)=> (item._id===event));
     }, e =>{
       this.response=e;
@@ -356,6 +365,8 @@ public unsignFromEvent(event:string)
       );
       if (feat == null){
       let cor = olProj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+      //console.log(cor);
+      //console.log(evt.coordinate);
       //console.log(evt.coordinate);
       this.wsp = evt.coordinate;
       let feature = new Feature(new Point(evt.coordinate));
@@ -415,8 +426,8 @@ public setToEdit(ev)
 getMeDate(date: string)
 {
   let date_to_show= new Date(date);
-  let options ={weekday: 'long', year:'numeric', month:'long', day: 'numeric' };
-  return date_to_show.toLocaleString('pl-PL',options);
+  let options ={weekday: "long", year:"numeric", month:"long", day: "numeric" };
+  return date_to_show.toLocaleString('pl-PL');
 }
 deleteEvent(ev: EventASG)
 {
@@ -425,13 +436,38 @@ deleteEvent(ev: EventASG)
     dialogRef.afterClosed().subscribe(result => {
       if(result===true){
     this.eventS.deleteEvent(ev).pipe(first()).subscribe(data => {
-     this.snackBar.openFromComponent(loginSnackBarComponent, { duration: 5000,
+     this.snackBar.openFromComponent(deletedEventSnackBarComponent, { duration: 5000,
       horizontalPosition: "center", verticalPosition: "top"});
-  });
-}
-})
+      this.eventS.deleteEventInClient(ev);
+      });
+  
+    }
+  })
 }
 
+checkIfPayed(_ev:string)
+{
+  let _czy_oplacone;
+  for(let ev of this.eventS.eventsList){
+    if (ev._id=== _ev)
+    {
+      for(let fraction of ev.frakcje)
+        {
+            fraction.zapisani.forEach((item,index)=>{
+              
+              if(item._id=== this.loginS.user.userID)
+              {
+                _czy_oplacone = item.czy_oplacone;
+                return;
+                
+                
+              } 
+            })
+        }
+    }
+  }
+  return _czy_oplacone;
+}
   userEventToShow(i: number)
 {
   this.eventToDisplay=this.eventS.userEventsPaginator[i];
@@ -442,5 +478,30 @@ deleteEvent(ev: EventASG)
       this.map.getView().setCenter(coor);
       this.map.getView().setZoom(10);
 }
+paymentLogic()
+{
+
+  
+}
+
+ payForEvent(eventId: string, )
+{
+  this.paymentLogic();
+
+  this.eventS.updateUserPayment(eventId,true,this.loginS.user.userID, this.enlistedFraction).subscribe(data =>
+    {
+      this.response=data ;
+      console.log(this.response.message);
+      
+    }, e => {
+        this.response=e;
+        alert(this.response.message)
+    });
+
+ 
+};
+
+
+
 
 }

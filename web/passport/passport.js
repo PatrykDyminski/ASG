@@ -25,7 +25,7 @@ module.exports = function (app, passport) {
         clientID:
           "360134415185-ru8j8nj84i016rbv6uaou37tgl0qn00s.apps.googleusercontent.com",
         clientSecret: "yomlk6mTDEbW0azLE2jk3cm7",
-        callbackURL: "http://localhost:3000/auth/google/callback",
+        callbackURL: "http://localhost:3002/auth/google/callback",
       },
       function (accessToken, refreshToken, profile, done) {
         User.findOne({ googleID: profile.id }).then((currentUser) => {

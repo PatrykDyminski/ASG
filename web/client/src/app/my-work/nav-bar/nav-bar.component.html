@@ -8,7 +8,9 @@
     <div class="outer">
       <div class="inner">
   <a  [routerLink]="['map']">{{map}}</a>
+  <!--
   <a   [routerLink]="['locations']" >{{locations}}</a>
+  -->
 </div >
 <div class="innerEnd">
   <a color="accent"(click)="loginFunc()" style=" cursor: pointer; margin-top: auto; margin-bottom: auto; padding-right: 0px;">Zaloguj </a><mat-icon style="margin-top: auto !IMPORTANT; margin-bottom: auto !IMPORTANT;" (click)="loginFunc()">login</mat-icon>
@@ -33,8 +35,10 @@
   <div class="outer">
     <div class="inner">
 <a  [routerLink]="['map']">{{map}}</a>
+<!--
 <a   [routerLink]="['locations']" >{{locations}}</a>
 <a  [routerLink]="['eq']">{{eq}}</a>
+-->
 </div >
 <div class="innerEnd">
 <a id="name" style=" margin-top: auto; margin-bottom: auto; padding-right: 0px; cursor: default">{{loginS.user.name}}</a>

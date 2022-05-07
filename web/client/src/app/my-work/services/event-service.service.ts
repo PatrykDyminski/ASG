@@ -38,10 +38,11 @@ export class EventServiceService {
       }
     }
   }
-  public  joinFraction(event:string, faction:string, user:string, name:string):Observable<any>
+  //dodac w parametrach info o oplaceniu w trakcie zapisywania, na razie false
+  public  joinFraction(event:string, faction:string, user:string, name:string, czy_oplacone: boolean):Observable<any>
   {
     //const header = new HttpHeaders().set( 'Authorization', 'Bearer ' + token);
-    const options = {_id:event, strona:faction, _idGracz:user, gracz:name}
+    const options = {_id:event, strona:faction, _idGracz:user, gracz:name, czy_oplacone: false}
     const header = new Headers();
     header.append('Content-Type','application/json; charset=utf-8');
     //console.log(options);
@@ -56,7 +57,7 @@ export class EventServiceService {
     return this.http.put(this.url+'/api/unsignUser', data ).pipe(catchError(this.handleError));
   }
 
-  public addPlayerInClient(event: string, side:string, _idGracz: string, name: string)
+  public addPlayerInClient(event: string, side:string, _idGracz: string, name: string, czy_oplacone: boolean)
   {
     for(let ev of this.eventsList){
       if (ev._id===event)
@@ -65,7 +66,7 @@ export class EventServiceService {
         {
           if(fraction.strona===side)
           {
-            fraction.zapisani.push({_id:_idGracz, imie: name});
+            fraction.zapisani.push({_id:_idGracz, imie: name, czy_oplacone:false});
           }
         }
       }
@@ -212,6 +213,34 @@ export class EventServiceService {
     }
   }
 
+public updateUserPaymentInClient(_ev:string, paymentStatus: boolean, userID:string)
+{
+  for(let ev of this.eventsList){
+    if (ev._id=== _ev)
+    {
+      for(let fraction of ev.frakcje)
+        {
+            fraction.zapisani.forEach((item,index)=>{
+              
+              if(item._id=== userID)
+              {
+                item.czy_oplacone = paymentStatus;
+              } 
+            })
+        }
+    }
+  }
 }
+
+public  updateUserPayment(_ev:string, paymentStatus: boolean, userID:string, frakcja: string):Observable<any>
+{
+  const options = {_id:_ev, strona:frakcja, _idGracz:userID, czy_oplacone: true}
+  return this.http.put(this.url+'/api/updateUserPayment', {params: options}).pipe(catchError(this.handleError));
+}
+
+
+}
+
+
 
 

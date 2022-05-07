@@ -1,5 +1,6 @@
+@use '@angular/material' as mat;
 
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 
 @mixin event-form-theme($theme) {
   $primary: map-get($theme,primary);
@@ -11,7 +12,7 @@
 
     .mat-step-header .mat-step-icon-selected, .mat-step-header .mat-step-icon-state-done,
     .mat-step-header .mat-step-icon-state-edit {
-      background-color: mat-color($accent);
+      background-color: mat.get-color-from-palette($accent);
     }
 
 }

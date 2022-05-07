@@ -1,13 +1,14 @@
+@use '@angular/material' as mat;
 
 
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 @import './components-theme.scss';
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat-core();
+@include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
@@ -19,12 +20,12 @@
 // The warn palette is optional (defaults to red).
 //$dark-warn: mat-palette($mat-red);
 
-$client-primary: mat-palette($mat-light-blue);
+$client-primary: mat.define-palette(mat.$light-blue-palette);
 
-$client-accent: mat-palette($mat-purple);
+$client-accent: mat.define-palette(mat.$purple-palette);
 
 // The warn palette is optional (defaults to red).
-$client-warn: mat-palette($mat-red);
+$client-warn: mat.define-palette(mat.$red-palette);
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
 
@@ -49,7 +50,7 @@ $dmat-primary: (
     darker: $dark-primary-text,
   )
 );
-$dark-primary: mat-palette($dmat-primary, main, lighter, darker);
+$dark-primary: mat.define-palette($dmat-primary, main, lighter, darker);
 
 body {
   --accent-color: #3096d2;
@@ -70,7 +71,7 @@ $dmat-accent: (
     darker: $light-primary-text,
   )
 );
-$dark-accent: mat-palette($dmat-accent, main, lighter, darker);
+$dark-accent: mat.define-palette($dmat-accent, main, lighter, darker);
 
 body {
   --warn-color: #ff0000;
@@ -92,7 +93,7 @@ $dmat-warn: (
     darker: $light-primary-text,
   )
 );
-$dark-warn: mat-palette($dmat-warn, main, lighter, darker);;
+$dark-warn: mat.define-palette($dmat-warn, main, lighter, darker);;
 
 
 
@@ -117,7 +118,7 @@ $mat-primary: (
     darker: $dark-primary-text,
   )
 );
-$client-primary: mat-palette($mat-primary, main, lighter, darker);
+$client-primary: mat.define-palette($mat-primary, main, lighter, darker);
 
 body {
   --accent-color: #2da7a9;
@@ -139,7 +140,7 @@ $mat-accent: (
     darker: $light-primary-text,
   )
 );
-$client-accent: mat-palette($mat-accent, main, lighter, darker);
+$client-accent: mat.define-palette($mat-accent, main, lighter, darker);
 
 body {
   --warn-color: #ff0000;
@@ -161,7 +162,7 @@ $mat-warn: (
     darker: $light-primary-text,
   )
 );
-$client-warn: mat-palette($mat-warn, main, lighter, darker);;
+$client-warn: mat.define-palette($mat-warn, main, lighter, darker);;
 
 
 
@@ -176,7 +177,7 @@ $dark-disabled-text: rgba($dark-primary-text, 0.38);
 $dark-dividers: rgba($dark-primary-text, 0.12);
 $dark-focused: rgba($dark-primary-text, 0.12);
 
-$mat-light-theme-foreground: (
+mat.$light-theme-foreground-palette: (
   base:              black,
   divider:           $dark-dividers,
   dividers:          $dark-dividers,
@@ -203,7 +204,7 @@ $light-disabled-text: rgba($light-primary-text, 0.5);
 $light-dividers: rgba($light-primary-text, 0.12);
 $light-focused: rgba($light-primary-text, 0.12);
 
-$mat-dark-theme-foreground: (
+mat.$dark-theme-foreground-palette: (
   base:              $light-text,
   divider:           $light-dividers,
   dividers:          $light-dividers,
@@ -234,7 +235,7 @@ $dark-bg-tooltip:     lighten(#2c2c2c, 20%);
 $dark-bg-alpha-4:     rgba(#2c2c2c, 0.04);
 $dark-bg-alpha-12:    rgba(#2c2c2c, 0.12);
 
-$mat-light-theme-background: (
+mat.$light-theme-background-palette: (
   background:               $light-background,
   status-bar:               $light-bg-darker-20,
   app-bar:                  $light-bg-darker-5,
@@ -262,7 +263,7 @@ $light-bg-alpha-4:    rgba(#fafafa, 0.04);
 $light-bg-alpha-12:   rgba(#fafafa, 0.12);
 
 // Background palette for dark themes.
-$mat-dark-theme-background: (
+mat.$dark-theme-background-palette: (
   background:               $dark-background,
   status-bar:               $dark-bg-lighter-20,
   app-bar:                  $dark-bg-lighter-5,
@@ -281,25 +282,25 @@ $mat-dark-theme-background: (
 );
 
 
-$client-theme:mat-light-theme(
+$client-theme:mat.define-light-theme(
   (
     color: (
       primary: $client-primary,
       accent: $client-accent,
       warn: $client-warn,
-      foreground: $mat-light-theme-foreground,
-      background: $mat-light-theme-background
+      foreground: mat.$light-theme-foreground-palette,
+      background: mat.$light-theme-background-palette
     ),
   )
 );
-$dark-theme:mat-dark-theme(
+$dark-theme:mat.define-dark-theme(
   (
     color: (
       primary: $dark-primary,
       accent: $dark-accent,
       warn: $dark-warn,
-      foreground:$mat-dark-theme-foreground,
-      background: $mat-dark-theme-background
+      foreground:mat.$dark-theme-foreground-palette,
+      background: mat.$dark-theme-background-palette
 
     ),
   )
@@ -311,10 +312,10 @@ $dark-theme:mat-dark-theme(
 
 
 
-@include angular-material-theme($client-theme);
+@include mat.all-component-themes($client-theme);
 @include component-themes($client-theme);
 .dark-theme{
-  @include angular-material-theme($dark-theme);
+  @include mat.all-component-themes($dark-theme);
   @include component-themes($dark-theme);
 }
 /* You can add global styles to this file, and also import other style files */

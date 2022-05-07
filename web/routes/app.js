@@ -43,6 +43,7 @@ const checkToken = (req, res, next) => {
     }
 
 
+/*
 router.get('/user',checkToken,function(req,res){
     
     User.findOne({googleID:req.decoded.userID}).select('googleID googleName photo').exec((err,user)=>{
@@ -54,7 +55,7 @@ router.get('/user',checkToken,function(req,res){
             if(!user)
             res.json({succes:false,message:'User not found'});
             else
-            res.json({succes:true,message:'Found user',userID:user.googleID,name:user.googleName,photo:user.photo});
+            res.json({succes:true,message:'Found user',userID:user.googleID,name:user.googleName,photo:user.photo, mail: user.email});
            
         }
         
@@ -62,6 +63,7 @@ router.get('/user',checkToken,function(req,res){
 
     
 })
+*/
 
 router.post('/event', function(req,res){
     new Event({
@@ -135,7 +137,7 @@ router.put('/signUser',async function(req,res){
     else{
 
     await Event.updateOne({"_id":req.body.params._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body.params._idGracz}}},{safe:true,multi:true});
-    await Event.updateOne({"_id":req.body.params._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body.params._idGracz,imie:req.body.params.gracz}}},
+    await Event.updateOne({"_id":req.body.params._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body.params._idGracz,imie:req.body.params.gracz, czy_oplacone: req.body.params.czy_oplacone}}},
     {arrayFilters:[{"s.strona":req.body.params.strona}],upsert:true},function(error,result){
        if(error)
        console.log(error);
@@ -165,184 +167,6 @@ router.delete('/deleteEvent', function(req,res){
     })
 })
 
-
-router.get('/getFields', function(req,res){
-    Battlefield.find({},function(error,result){
-        if(error)
-            res.status(500).json({message:"Nie udało się pobrać lokacji"})
-        else{
-            res.status(200).json(result);
-        }
-    });
-})
-
-router.post('/postField', function(req,res){
-    new Battlefield({
-        nazwa: req.body.nazwa,
-        adres: req.body.adres,
-        wsp: req.body.wsp,
-        opis: req.body.opis
-    }).save((err, field)=>{
-        if(err)
-        {
-            res.status(400).json({success:false, message:"Wystąpił błąd", created_id:''});
-        }
-        else{
-            console.log(field);
-        res.status(200).json({success:true,message:'Utworzono lokację', created_id: field._id});
-        }
-    });
-});
-
-    router.get('/getWeapons',function(req,res){
-        
-        Weapon.find({owner:req.query.owner},function(error,result){
-            if(error)
-                res.status(500).json({message:"Nie udało się pobrać lokacji"})
-            else{
-                res.status(200).json(result);
-            }
-        });
-        
-    });
-    router.post('/postWeapon', function(req,res){ 
-        new Weapon({
-        owner: req.body.owner,    
-        nazwa: req.body.nazwa,
-        rodzaj:req.body.rodzaj,
-        fps:req.body.fps,
-        rof:req.body.rof,
-        opis: req.body.opis,
-        skuteczny: req.body.skuteczny
-    }).save((err, weapon)=>{
-        if(err)
-        {
-            res.status(500).json({success:false, message:"Wystąpił błąd", created_id:''});
-        }
-        else{
-            console.log(weapon);
-        res.status(200).json({success:true,message:'Dodano replikę', created_id: weapon._id});
-        }});
-    });
-    router.put('/putWeapon', function(req,res){
-         Weapon.updateOne({_id:req.body._id},req.body,function(error,result){
-            if(error){
-            console.log(error);
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Replika zaaktualizowana"});
-            }
-        });
-    });
-    router.delete('/deleteWeapon', function(req,res){
-        Weapon.remove({_id:req.query._id},function(error,result){
-            if(error){
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Broń usunięta"});
-            }
-        })
-    });
-
-    router.get('/getItems',function(req,res){
-        Item.find({owner:req.query.owner},function(error,result){
-            if(error)
-                res.status(500).json({message:"Nie udało się pobrać lokacji"})
-            else{
-                res.status(200).json(result);
-            }
-        });
-    });
-    router.post('/postItem', function(req,res){
-         new Item({
-        owner: req.body.owner,    
-        nazwa: req.body.nazwa,
-        rodzaj:req.body.rodzaj,
-        kamo: req.body.kamo,
-        opis: req.body.opis
-    }).save((err, item)=>{
-        if(err)
-        {
-            res.status(400).json({success:false, message:"Wystąpił błąd", created_id:''});
-        }
-        else{
-            
-        res.status(200).json({success:true,message:'Dodano broń', created_id: item._id});
-        }});
-    });
-    router.put('/putItem', function(req,res){
-        Item.updateOne({_id:req.body._id},req.body,function(error,result){
-            if(error){
-            console.log(error);
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Replika zaaktualizowana"});
-            }
-        });
-
-    });
-    router.delete('/deleteItem', function(req,res){
-        Item.remove({_id:req.query._id},function(error,result){
-            if(error){
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Broń usunięta"});
-            }
-        })
-    });
-
-    router.get('/getAccesories',function(req,res){
-        Accesory.find({owner:req.query.owner},function(error,result){
-            if(error)
-                res.status(500).json({message:"Nie udało się pobrać lokacji"})
-            else{
-                res.status(200).json(result);
-            }
-        });
-    });
-    router.post('/postAccesory', function(req,res){
-        new Accesory({
-            owner: req.body.owner,    
-            nazwa: req.body.nazwa,
-            rodzaj:req.body.rodzaj,
-            opis: req.body.opis
-        }).save((err, accesory)=>{
-            if(err)
-            {
-                res.status(400).json({success:false, message:"Wystąpił błąd", created_id:''});
-            }
-            else{
-                
-            res.status(200).json({success:true,message:'Dodano broń', created_id: accesory._id});
-            }});
-
-    });
-    router.put('/putAccesory', function(req,res){
-        Accesory.updateOne({_id:req.body._id},req.body,function(error,result){
-            if(error){
-            console.log(error);
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Replika zaaktualizowana"});
-            }
-        });
-    });
-    router.delete('/deleteAccesory', function(req,res){
-        Accesory.remove({_id:req.body._id},function(error,result){
-            if(error){
-            res.status(500).json({success:false,message:"Wystąpił błąd"})
-            }
-            else{
-                res.status(200).json({success:true,message:"Broń usunięta"});
-            }
-        })
-    });
-    
 
 
 

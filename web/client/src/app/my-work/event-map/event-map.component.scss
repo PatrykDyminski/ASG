@@ -1,5 +1,6 @@
+@use '@angular/material' as mat;
 
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 
 @mixin event-theme($theme) {
   $primary: map-get($theme,primary);
@@ -11,7 +12,7 @@
     margin-bottom: 5%;
     margin:auto;
     border-radius: 5px;
-    box-shadow:0 0 5px mat-color($accent);
+    box-shadow:0 0 5px mat.get-color-from-palette($accent);
     height: fit-content;
   }
 
@@ -118,7 +119,8 @@ flex-wrap:wrap;
 padding-top: 50px;
 padding-left: 0px;
 }
-canvas{
-  width: 100% !IMPORTANT;
+.canvas{
+  width: 100% !important;
+  height: 100% !important;
 }
 

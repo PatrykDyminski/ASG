@@ -39,13 +39,13 @@ export class MyWorkComponent implements OnInit {
   }
   loginF()
   {
-    window.location.replace("http://localhost:3000/auth/google");
+    window.location.replace("http://localhost:3002/auth/google");
   }
   logoutF()
   {
     this.cookieService.delete('ASGjwt');
     //this.route.navigate(['myWork/map'])
-    this.loginS.user={userID:'', name:'', photo:''};
+    this.loginS.user={userID:'', name:'', photo:'', mail:''};
     this.loginS.logged=false;
     setTimeout(function(){location.reload();},50);
   }
