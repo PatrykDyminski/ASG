@@ -225,6 +225,7 @@ public updateUserPaymentInClient(_ev:string, paymentStatus: boolean, userID:stri
               if(item._id=== userID)
               {
                 item.czy_oplacone = paymentStatus;
+                return
               } 
             })
         }
@@ -234,7 +235,7 @@ public updateUserPaymentInClient(_ev:string, paymentStatus: boolean, userID:stri
 
 public  updateUserPayment(_ev:string, paymentStatus: boolean, userID:string, frakcja: string):Observable<any>
 {
-  const options = {_id:_ev, strona:frakcja, _idGracz:userID, czy_oplacone: true}
+  const options = {_id:_ev, strona:frakcja, _idGracz:userID, czy_oplacone: paymentStatus}
   return this.http.put(this.url+'/api/updateUserPayment', {params: options}).pipe(catchError(this.handleError));
 }
 

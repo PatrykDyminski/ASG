@@ -169,6 +169,41 @@ router.delete('/deleteEvent', function(req,res){
 
 
 
+    router.put('/updateUserPayment', function(req,res){
+         Event.updateOne({_id:req.body.params._id},
+            ///some creazy logic to write
+            {
+                $set: {
+                    //"frakcje.$[f].zapisani.[z].czy_oplacone" : req.body.params.czy_oplacone 
+                    //"frakcje.$[f].zapisani.$[z].czy_oplacone" : req.body.params.czy_oplacone 
+                    "frakcje.$[f].zapisani.$[z].czy_oplacone" : req.body.params.czy_oplacone  
+                }
+            },
+            {
+                arrayFilters:[
+                    {
+                        "f.strona": req.body.params.strona
+                    },
+                    {
+                        "z._id": req.body.params._idGracz
+                    }
+                ]
+            }
+            ,function(error,result){
+            if(error){
+            console.log(error);
+            res.json({success:false,message:"Wystąpił błąd"})
+            }
+            else{
+                console.log(result);
+                res.json({success:true,message:"Zapisano opłatę"});
+            }
+        });
+        
+    })
+    
+
+
 
 
 
