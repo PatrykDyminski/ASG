@@ -59,7 +59,6 @@ export class EventMapComponent implements OnInit {
    selectedEvent: EventASG[] = [];
    eventToDisplay: EventASG = null;
    enlistedFraction = '';
-   enlistedFractionId = -1;
    response= {message: ''};
     selectedTab = 0;
     wsp = '';
@@ -99,7 +98,6 @@ public changedTabHandler(event)
 
 public disabledButton()
 {
-  let i = 0;
   for(let frakcja of this.eventToDisplay.frakcje )
   {
       for(const player of frakcja.zapisani)
@@ -107,11 +105,9 @@ public disabledButton()
         if(player._id===this.loginS.user.userID)
         {
           this.enlistedFraction = frakcja.strona;
-          this.enlistedFractionId = i;
           return false;
         }
       }
-      i++;
     }
   return true;
 }
