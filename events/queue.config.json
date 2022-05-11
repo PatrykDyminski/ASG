@@ -1,22 +1,16 @@
 {
   "ip": "localhost",
   "port": 5672,
-  "notifications": {
-    "queueName": "UserSignedInForEvent",
-    "exchangeName": "EventsExchange",
-    "type": "fanout"
-  },
   "events": {
-    "send": {
+    "recieve": {
       "queueName": "EventsQueue",
       "exchangeName": "ExentsQueueExchange",
       "type": "fanout"
     },
-    "recieve": {
+    "send": {
       "queueName": "APIGatewayQueue",
       "exchangeName": "APIGatewayQueueExchange",
       "type": "fanout"
     }
-    
   }
 }

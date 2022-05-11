@@ -7,15 +7,27 @@ var validate = require('express-jsonschema').validate;
 var NotificationSchema = {
     type: 'object',
     properties: {
-        email: {
+        "LastName": {
             type: 'string',
             required: true
         },
-        topic: {
+        "FirstName": {
             type: 'string',
             required: true
         },
-        message: {
+        "Email": {
+            type: 'string',
+            required: true
+        },
+        "EventName": {
+            type: 'string',
+            required: true
+        },
+        "EventDate": {
+            type: 'string',
+            required: true
+        },
+        "EventLocation": {
             type: 'string',
             required: true
         }
@@ -26,12 +38,12 @@ router.get("/test/", function (req, res) {
     console.log("Test")
 })
 
-router.post("/notifications/send/", validate({body: NotificationSchema}), function (req, res) {
+router.post("/notifications/send/", validate({body: NotificationSchema}),  function (req, res) {
     // #swagger.tags = ['Notifications'] 
     // #swagger.description = 'Test description'
 
     let notification = JSON.stringify(req.body)
-    queue.sendMessage(notification)
+    queue.sendMessageToNotificationsQueue(notification)
 
     res.send('Notification send')
 });

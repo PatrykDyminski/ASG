@@ -1,0 +1,14 @@
+
+@import './app/my-work/event-map/event-map.component.scss';
+@import './app/my-work/event-form/event-form.component.scss';
+@import './app/my-work/locations-list/locations-list.component.scss';
+@import './app/my-work/nav-bar/nav-bar.component.scss';
+@import './app/my-work/equipment/equipment.component.scss';
+
+@mixin component-themes($theme) {
+  @include event-theme($theme);
+  @include event-form-theme($theme);
+  @include loc_theme($theme);
+  @include nav-theme($theme);
+  @include eq-theme($theme);
+}
