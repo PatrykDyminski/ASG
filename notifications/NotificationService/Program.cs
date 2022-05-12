@@ -1,29 +1,25 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NotificationService;
-using NotificationService.EmailSender;
+using Notifications.Sender;
+using Notifications.Sender.EmailSender;
+using Notifications.Sender.NotificationSender;
 
-static IHostBuilder CreateHostBuilder(string[] args)
-{
-  return Host.CreateDefaultBuilder(args)
-    .ConfigureServices((_, services) =>
-      services
-        .AddSingleton<IEmailSender, EmailSender>());
-}
+using var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((_, services) => services
+      .AddSingleton<IEmailSender, EmailSender>()
+      .AddTransient<INotificationSender, NotificationSender>())
+    .Build();
 
-using var host = CreateHostBuilder(args).Build();
-Run(host.Services);
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+DotEnv.Load(dotenv);
 
-static void Run(IServiceProvider services)
-{
-  var root = Directory.GetCurrentDirectory();
-  var dotenv = Path.Combine(root, ".env");
-  DotEnv.Load(dotenv);
+using var serviceScope = host.Services.CreateScope();
+var provider = serviceScope.ServiceProvider;
 
-  using var serviceScope = services.CreateScope();
-  var provider = serviceScope.ServiceProvider;
+var notifSender = provider.GetRequiredService<INotificationSender>();
 
-  var emailSender = provider.GetRequiredService<IEmailSender>();
+notifSender.SendNotifications();
 
-  emailSender.SendEmail("242527@student.pwr.edu.pl", "Elemele", "XDDD");
-}
+Console.WriteLine(" Press [enter] to exit.");
+Console.ReadLine();
