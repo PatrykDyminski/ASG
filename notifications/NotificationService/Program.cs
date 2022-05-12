@@ -4,31 +4,22 @@ using Notifications.Sender;
 using Notifications.Sender.EmailSender;
 using Notifications.Sender.NotificationSender;
 
-static IHostBuilder CreateHostBuilder(string[] args)
-{
-  return Host.CreateDefaultBuilder(args)
-    .ConfigureServices((_, services) =>
-      services
-        .AddSingleton<IEmailSender, EmailSender>()
-        .AddTransient<INotificationSender, NotificationSender>());
-}
+using var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((_, services) => services
+      .AddSingleton<IEmailSender, EmailSender>()
+      .AddTransient<INotificationSender, NotificationSender>())
+    .Build();
 
-using var host = CreateHostBuilder(args).Build();
-Run(host.Services);
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+DotEnv.Load(dotenv);
 
-static async void Run(IServiceProvider services)
-{
-  var root = Directory.GetCurrentDirectory();
-  var dotenv = Path.Combine(root, ".env");
-  DotEnv.Load(dotenv);
+using var serviceScope = host.Services.CreateScope();
+var provider = serviceScope.ServiceProvider;
 
-  using var serviceScope = services.CreateScope();
-  var provider = serviceScope.ServiceProvider;
+var notifSender = provider.GetRequiredService<INotificationSender>();
 
-  var notifSender = provider.GetRequiredService<INotificationSender>();
+notifSender.SendNotifications();
 
-  notifSender.SendNotifications();
-
-  Console.WriteLine(" Press [enter] to exit.");
-  Console.ReadLine();
-}
+Console.WriteLine(" Press [enter] to exit.");
+Console.ReadLine();
