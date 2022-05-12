@@ -1,0 +1,52 @@
+
+<div *ngIf="loginS.logged===true; then logged else guest"></div>
+
+<ng-template  #guest>
+  <mat-toolbar>
+  <mat-toolbar-row>
+    <div style="width: 85%; margin: auto; height: 100%;  display: inline-block; margin-left: 7.5%;">
+    <div class="outer">
+      <div class="inner">
+  <a  [routerLink]="['map']">{{map}}</a>
+  <a   [routerLink]="['locations']" >{{locations}}</a>
+</div >
+<div class="innerEnd">
+  <a color="accent"(click)="loginFunc()" style=" cursor: pointer; margin-top: auto; margin-bottom: auto; padding-right: 0px;">Zaloguj </a><mat-icon style="margin-top: auto !IMPORTANT; margin-bottom: auto !IMPORTANT;" (click)="loginFunc()">login</mat-icon>
+
+</div>
+
+</div>
+</div>
+<div style=" display: inline-block; height: 100%; float: right; margin:auto;">
+<mat-icon (click)="changeTheme()" style="display: inline-block; margin-top: 75%; float: right;">brightness_6</mat-icon>
+</div>
+
+</mat-toolbar-row>
+  </mat-toolbar>
+  </ng-template>
+
+
+<ng-template  #logged>
+<mat-toolbar>
+<mat-toolbar-row>
+<div style="width: 85%; margin: auto; height: 100%;  display: inline-block; margin-left: 7.5%;">
+  <div class="outer">
+    <div class="inner">
+<a  [routerLink]="['map']">{{map}}</a>
+<a   [routerLink]="['locations']" >{{locations}}</a>
+<a  [routerLink]="['eq']">{{eq}}</a>
+</div >
+<div class="innerEnd">
+<a id="name" style=" margin-top: auto; margin-bottom: auto; padding-right: 0px; cursor: default">{{loginS.user.name}}</a>
+<mat-icon (click)="logoutFunc()" [routerLink]="['map']" style=" margin-top: auto; margin-bottom: auto; padding-right: 0px; padding-left:2px;" >exit_to_app</mat-icon>
+</div>
+
+</div>
+</div>
+<div style=" display: inline-block; height: 100%; float: right; margin:auto;">
+<mat-icon (click)="changeTheme()" style="display: inline-block; margin-top: 75%; float: right;">brightness_6</mat-icon>
+</div>
+
+</mat-toolbar-row>
+</mat-toolbar>
+</ng-template>

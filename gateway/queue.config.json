@@ -1,0 +1,22 @@
+{
+  "ip": "localhost",
+  "port": 5672,
+  "notifications": {
+    "queueName": "UserSignedInForEvent",
+    "exchangeName": "EventsExchange",
+    "type": "fanout"
+  },
+  "events": {
+    "send": {
+      "queueName": "EventsQueue",
+      "exchangeName": "ExentsQueueExchange",
+      "type": "fanout"
+    },
+    "recieve": {
+      "queueName": "APIGatewayQueue",
+      "exchangeName": "APIGatewayQueueExchange",
+      "type": "fanout"
+    }
+    
+  }
+}
