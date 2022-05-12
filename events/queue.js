@@ -225,6 +225,43 @@ async function parseResponse(message){
           }
       })
   }
+  else if (req.endpoint="updateUserPayment") {
+    Event.updateOne({_id:req.body.params._id},
+        {
+            $set: {
+                "frakcje.$[f].zapisani.$[z].czy_oplacone" : req.body.params.czy_oplacone  
+            }
+        },
+        {
+            arrayFilters:[
+                {
+                    "f.strona": req.body.params.strona
+                },
+                {
+                    "z._id": req.body.params._idGracz
+                }
+            ]
+        }
+        ,function(error,result){
+            if(error){
+                console.log(error);
+                sendMessageToGatewayQueue({
+                    correlationId: request.correlationId,
+                    payload: {
+                        body: {success:false,message:"Wystąpił błąd"}
+                    }
+                })
+                }
+                else{
+                    sendMessageToGatewayQueue({
+                        correlationId: request.correlationId,
+                        payload: {
+                            body: {success:true,message:"Zapisano opłatę"}
+                        }
+                    })
+                }
+    });
+  }
 }
 
 module.exports = {
