@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<h1>Wydarzenia Airsoft</h1>
+<p>Zapisz się na wydarzenie</p>
+<form action="http://localhost:3000/api/payment/createOrder", method="post">
+  <label>Frist name</label><input type="text" name="fname" id="fname"><br/>
+  <label>Last Name</label><input type="text" name="lname" id="lname"><br/>
+  <label>email</label><input type="email" name="email" id="email"><br/>
+  <label>phone</label><input type="text" name="phone" id="phone"><br/>
+  <input type="hidden" name="eventName" value="Wydarzenie 1">
+  <input type="hidden" name="price" value ="10000">
+  <input type="hidden" name="des" value="Wydarzenie we Wrocławiu w maju 2022 roku">
+  <input type="submit" value="Zamów bilet">
+</form>
+
+</body>
+</html> 

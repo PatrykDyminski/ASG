@@ -95,6 +95,18 @@ router.put('/updateUserPayment', function(req,res){
     queue.sendMessageToEventsQueue({endpoint: "updateUserPayment", body: req.body}, res)
 })
 
+router.get('/payment/authorize', function(req,res){
+    queue.sendMessageToEventsQueue({endpoint: "payment/authorize", body: {}}, res)
+})
+
+router.post('/payment/createOrder', function(req,res){
+    queue.sendMessageToEventsQueue({endpoint: 'payment/createOrder', body: req.body}, res)
+})
+
+router.get('/orderDetails/1', function(req,res){
+    queue.sendMessageToEventsQueue({endpoint: "orderDetails/1", body: {}}, res)
+})
+
 // NOTIFICATIONS
 
 var NotificationSchema = {

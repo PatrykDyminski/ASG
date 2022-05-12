@@ -1,5 +1,9 @@
 const amqp = require('amqplib/callback_api');
 const queueConfig = require('./queue.config.json');
+var https = require('follow-redirects').https;
+const { stringify } = require('querystring');
+const payuConfig = require('./payu.config.json');
+
 var channel = null
 
 function init() {
@@ -42,7 +46,44 @@ function init() {
         });
       });
 }
+var access_token
+var orderId
+var options = {
+    'method': 'POST',
+    'hostname': 'secure.snd.payu.com',
+    'path': '/pl/standard/user/oauth/authorize',
+    'headers': {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': payuConfig.cookie
+    },
+    'maxRedirects': 20
+};
 
+var req = https.request(options, function (res) {
+    var chunks = [];
+
+    res.on("data", function (chunk) {
+        chunks.push(chunk);
+    });
+
+    res.on("end", function (chunk) {
+        var body = Buffer.concat(chunks);
+        console.log(body.toString());
+        access_token = JSON.parse(body.toString()).access_token
+    });
+
+    res.on("error", function (error) {
+        console.error(error);
+    });
+});
+
+    var postData = stringify({
+        'grant_type': 'client_credentials',
+        'client_secret': payuConfig.client_secret,
+        'client_id': payuConfig.client_id
+    });
+    req.write(postData);
+    req.end();
 function sendMessageToGatewayQueue(payload){
 
     message = JSON.stringify(payload)
@@ -225,7 +266,7 @@ async function parseResponse(message){
           }
       })
   }
-  else if (req.endpoint="updateUserPayment") {
+  else if (req.endpoint === "updateUserPayment") {
     Event.updateOne({_id:req.body.params._id},
         {
             $set: {
@@ -262,9 +303,205 @@ async function parseResponse(message){
                 }
     });
   }
+  else if (req.endpoint === "payment/createOrder"){
+    createOrder(req, access_token);
+  }
+  else if(req.endpoint == "orderDetails/1"){
+    orderDetails(req, access_token);
+  }
 }
 
 module.exports = {
     init,
     sendMessageToGatewayQueue
+}
+
+
+var https = require('follow-redirects').https;
+const sendM = require("./sendMessage.js");
+var access_token
+var orderId
+
+function authorize() {
+    var postData = stringify({
+        'grant_type': 'client_credentials',
+        'client_secret': payuConfig.client_secret,
+        'client_id': payuConfig.client_id
+    });
+    var options = {
+        'method': 'POST',
+        'hostname': 'secure.snd.payu.com',
+        'path': '/pl/standard/user/oauth/authorize',
+        'headers': {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Cookie': payuConfig.cookie
+        },
+        'maxRedirects': 20
+    };
+    var req = https.request(options, function (res) {
+        var chunks = [];
+
+        res.on("data", function (chunk) {
+            chunks.push(chunk);
+        });
+        res.on("end", function (chunk) {
+            var body = Buffer.concat(chunks);
+            console.log(body.toString());
+            access_token = JSON.parse(body.toString()).access_token
+            console.log(access_token)
+            // res1.status(200).json({ message: "Authorized" })
+        });
+        res.on("error", function (error) {
+            console.error(error);
+        });
+    });
+    req.write(postData);
+    req.end();
+}
+
+function createOrder(req, access_token){
+    var statusCode;
+    var responseUrl;
+    // console.log(req.body)
+    // console.log(checkBuyer(req.body))
+    // if (checkBuyer(req.body)) {
+    body = req.body
+    var options = {
+        'method': 'POST',
+        'hostname': 'secure.snd.payu.com',
+        'path': '/api/v2_1/orders',
+        'headers': {
+            'Authorization': 'Bearer ' + access_token,
+            'Content-Type': 'application/json',
+            'Cookie': payuConfig.cookie
+        },
+        'maxRedirects': 1
+    };
+    var req = https.request(options, function (res) {
+        var chunks = [];
+        res.on("data", function (chunk) {
+            chunks.push(chunk);
+        });
+        res.on("end", function (chunk) {
+            var body1 = Buffer.concat(chunks);
+            // console.log(res.responseUrl)
+            responseUrl = res.responseUrl
+            // console.log(body.toString());
+            if (res.statusCode != 200) {
+                console.log("error")
+                console.log(body1.toString())
+                res.status(res.statusCode).json({ message: "error" })
+            }
+            else {
+                statusCode = 302;
+                orderId = res.responseUrl.split('orderId=')[1].split('&')[0]
+                console.log("Order Id: " + orderId);
+                // res1.setHeader("Location", res.responseUrl);
+                // res.end();
+                sendMessageToGatewayQueue({
+                    correlationId: request.correlationId,
+                    payload: {
+                        status: statusCode,
+                        body: {success:true, message:responseUrl}//, created_id: event._id}
+                    }
+                });
+            }
+        });
+        res.on("error", function (error) {
+            console.error(error);
+            sendMessageToGatewayQueue({
+                correlationId: request.correlationId,
+                payload: {
+                    status: 400,
+                    body: {success:false, message: error}//, created_id: event._id}
+                }
+            });
+        });
+    });
+    var postData = JSON.stringify({
+        "notifyUrl": "http://localhost:3000/api/paymentRecieved",
+        // "notifyUrl": payuConfig.notifyUrl,
+        "continueUrl": "http://localhost:3000/api/orderDetails/1",
+        "customerIp": "127.0.0.1",
+        "merchantPosId": payuConfig.merchantPosId,
+        "description": body.eventName,
+        "visibleDescription": body.des,
+        "currencyCode": "PLN",
+        "totalAmount": body.price,
+        "products": [
+            {
+                "name": "Bilet na Wydarzenie 1",
+                "unitPrice": "10000",
+                "quantity": "1"
+            }
+        ],
+        "buyer": {
+            "email": body.email,
+            "phone": body.phone,
+            "firstName": body.fname,
+            "lastName": body.lname
+        }
+    });
+    req.write(postData);
+    req.end();
+    // } else {
+    //     res1.status(400).json({ message: "incorrect input data" })
+    // }    
+}
+
+function orderDetails(params, access_token) {
+    console.log(orderId);
+    var options = {
+        'method': 'GET',
+        'hostname': 'secure.snd.payu.com',
+        'path': '/api/v2_1/orders/' + orderId,
+        'headers': {
+            'Authorization': 'Bearer ' + access_token,
+            'Cookie': payuConfig.cookie
+        },
+        'maxRedirects': 20
+    };
+
+    var req = https.request(options, function (res) {
+        var chunks = [];
+        res.on("data", function (chunk) {
+            chunks.push(chunk);
+        });
+        res.on("end", function (chunk) {
+            var body = Buffer.concat(chunks);
+            body = JSON.parse(body.toString())
+            // res.status(200).json(body);
+            buyer = body.orders[0].buyer;
+            message = JSON.stringify({
+                'LastName': buyer.lastName,
+                'FirstName': buyer.firstName,
+                'Email': buyer.email,
+                'EventName': body.orders[0].products[0].Name,
+                'EventDate': '2020-05-07T00:00:00',
+                'EventLocation': 'Wroclaw',
+            })
+            console.log(body.orders[0].status)
+            if (body.orders[0].status == 'COMPLETED') {
+                sendM.sendMessage(message, '127.0.0.1', 'UserSignedInForEvent');
+                sendMessageToGatewayQueue({
+                    correlationId: request.correlationId,
+                    payload: {
+                        status: 200,
+                        body: {success:true, message:  message}
+                    }
+                });
+            }
+        });
+        res.on("error", function (error) {
+            console.error(error);
+            sendMessageToGatewayQueue({
+                correlationId: request.correlationId,
+                payload: {
+                    status: 400,
+                    body: {success:false, message: "error"}
+                }
+            });
+        });
+    })
+    req.end();
 }

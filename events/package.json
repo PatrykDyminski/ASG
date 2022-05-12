@@ -13,6 +13,8 @@
     "morgan": "^1.10.0",
     "nodemon": "^2.0.6",
     "socket.io": "^2.4.1",
-    "amqplib": "^0.8.0"
+    "amqplib": "^0.8.0",
+    "follow-redirects": "^1.15.0",
+    "stringify": "^5.2.0"
   }
 }
