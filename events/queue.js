@@ -1,6 +1,7 @@
 const amqp = require('amqplib/callback_api');
 const queueConfig = require('./queue.config.json');
 var https = require('follow-redirects').https;
+var Event = require('./models/event');
 const { stringify } = require('querystring');
 const payuConfig = require('./payu.config.json');
 
