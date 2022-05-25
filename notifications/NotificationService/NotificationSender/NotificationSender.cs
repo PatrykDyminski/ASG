@@ -23,7 +23,7 @@ internal class NotificationSender : INotificationSender
       FirstName = "Pawel",
       LastName = "Kowalski",
       Email = "242527@student.pwr.edu.pl",
-      EventDate = DateTime.Parse("2022-05-15"),
+      EventDate = DateTime.Parse("2022-06-7"),
       EventName = "AFASFAF",
       EventLocation = "Wrocuaf",
       FirstNotifSent = false,
@@ -32,17 +32,44 @@ internal class NotificationSender : INotificationSender
 
     context.SaveChanges();
 
-    var notif = context.Notifications
+    var notif1 = context.Notifications
+      .ToList()
       .Where(n => !n.FirstNotifSent)
-      .Where(n => n.EventDate > now);
+      .Where(n => n.EventDate.DayOfYear - now.DayOfYear == 14);
 
-    notif.ToList().ForEach(n => HandleNotif(n));
+    notif1
+      .ToList()
+      .ForEach(n => HandleNotif(n, 1));
+
+    var notif2 = context.Notifications
+      .ToList()
+      .Where(n => !n.SecondNotifSent)
+      .Where(n => n.EventDate.DayOfYear - now.DayOfYear == 1);
+
+    notif2
+      .ToList()
+      .ForEach(n => HandleNotif(n, 2));
   }
 
-  private void HandleNotif(Notification n)
+  private void HandleNotif(Notification n, int wave)
   {
-    emailSender.SendEmail(n.Email, "Event " + n.EventName, n.EventDate.ToString());
-    n.FirstNotifSent = true;
+    Console.WriteLine(n);
+
+    var text = "Event in ";
+
+    if (wave == 1)
+    {
+      text += "two weeks ";
+      n.FirstNotifSent = true;
+    }
+    else
+    {
+      text += "ONE DAY!!!!! ";
+      n.SecondNotifSent = true;
+    }
+
+    emailSender.SendEmail(n.Email, text + n.EventName, n.EventDate.ToString());
+
     context.SaveChanges();
   }
 }
