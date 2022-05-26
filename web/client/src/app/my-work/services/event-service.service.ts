@@ -4,6 +4,10 @@ import { Observable, throwError } from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {EventASG} from './event';
 import { IfStmt } from '@angular/compiler';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,11 +19,17 @@ export class EventServiceService {
   public userEvents: EventASG[] = [];
   public userEventsPaginator: EventASG[] = [];
   public eventToEdit: EventASG = null;
+ // public subject = webSocket('ws://localhost:8081');
   url='http://127.0.0.1:3000';
   constructor(private http: HttpClient) {
-
-
+    /*this.subject.subscribe({
+      next: msg => console.log('message received: ' + msg), // Called whenever there is a message from the server.
+      error: err => console.log(err), // Called if at any point WebSocket API signals some kind of error.
+      complete: () => console.log('complete') // Called when connection is closed (for whatever reason).
+     });
+     this.subject.next(JSON.stringify({ op: 'hello' }));*/
   }
+  
 
   public setPaginatorList(index: number)
   {
