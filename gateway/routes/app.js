@@ -88,7 +88,7 @@ router.put('/signUser',async function(req,res){
 })
 
 router.delete('/deleteEvent', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "deleteEvent", body: req.body}, res)    
+    queue.sendMessageToEventsQueue({endpoint: "deleteEvent", body: req.query}, res)    
 })
 
 router.put('/updateUserPayment', function(req,res){

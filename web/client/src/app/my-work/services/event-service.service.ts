@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import {catchError} from 'rxjs/operators';
+import {catchError,map} from 'rxjs/operators';
 import {EventASG} from './event';
 import { IfStmt } from '@angular/compiler';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import {Socket} from 'ngx-socket-io';
 
 
 
@@ -19,16 +19,16 @@ export class EventServiceService {
   public userEvents: EventASG[] = [];
   public userEventsPaginator: EventASG[] = [];
   public eventToEdit: EventASG = null;
- // public subject = webSocket('ws://localhost:8081');
+
+  
   url='http://127.0.0.1:3000';
-  constructor(private http: HttpClient) {
-    /*this.subject.subscribe({
-      next: msg => console.log('message received: ' + msg), // Called whenever there is a message from the server.
-      error: err => console.log(err), // Called if at any point WebSocket API signals some kind of error.
-      complete: () => console.log('complete') // Called when connection is closed (for whatever reason).
-     });
-     this.subject.next(JSON.stringify({ op: 'hello' }));*/
+  constructor(private http: HttpClient, private socket: Socket) {
+    //this.socket = io(this.socketUrl)
   }
+  
+ 
+
+
   
 
   public setPaginatorList(index: number)
@@ -61,10 +61,34 @@ export class EventServiceService {
        catchError(this.handleError)
      );
   }
+
+  public socketEmitJoinFraction(event:string, faction:string, user:string, name:string, czy_oplacone: boolean)
+  {
+    const options = {_id:event, strona:faction, _idGracz:user, gracz:name, czy_oplacone: false};
+    this.socket.emit('joinFraction',options);
+  }
+
+  public socketOnJoinFraction():Observable<any>
+  {
+    return this.socket.fromEvent('joinFraction').pipe();
+  }
+
+
+
   public leaveFraction(event:string, player:string):Observable<any>{
     //const header = new HttpHeaders().set( 'Authorization', 'Bearer ' + token);
     const data= {_id:event, gracz: player};
     return this.http.put(this.url+'/api/unsignUser', data ).pipe(catchError(this.handleError));
+  }
+public socketEmitLeaveFraction(event:string, player:string)
+  {
+    const data= {_id:event, gracz: player};
+    this.socket.emit('leaveFraction', data);
+  }
+
+  public socketOnLeaveFraction():Observable<any>
+  {
+    return this.socket.fromEvent('leaveFraction').pipe();
   }
 
   public addPlayerInClient(event: string, side:string, _idGracz: string, name: string, czy_oplacone: boolean)
@@ -106,22 +130,68 @@ export class EventServiceService {
     return this.http.post(this.url+'/api/event', event ).pipe(catchError(this.handleError));
   }
 
+  public socketEmitPostEvent(event: EventASG)
+  {
+    this.socket.emit('postEvent', event);
+  }
+
+  public socketOnPostEvent():Observable<any>
+  {
+    return this.socket.fromEvent('postEvent').pipe(catchError(this.handleError));
+  }
+
+
   public updateEvent(event: EventASG):Observable<any>
   {
     //const header = new HttpHeaders().set( 'Authorization', 'Bearer ' + token);
     return this.http.put(this.url+'/api/updateEvent', event).pipe(catchError(this.handleError));
   }
+  public socketEmitUpdateEvent(event: EventASG)
+  {
+    this.socket.emit('updateEvent', event);
+  }
+
+  public socketOnUpdateEvent():Observable<any>
+  {
+    return this.socket.fromEvent('updateEvent').pipe(catchError(this.handleError));
+  }
+
+
+
   public  getEvents(){
     //const header = new HttpHeaders().set( 'Authorization', 'Bearer ' + token);
   const x =  this.http.get<EventASG[]>(this.url+'/api/events').pipe(catchError(this.handleError));
   return x;
   }
 
+  public socketEmitGetEvents()
+  {
+    this.socket.emit('getEvents',"null");
+  }
+
+  public socketOnGetEvents():Observable<any>
+  {
+    return this.socket.fromEvent('getEvents').pipe();
+  }
+
+
   deleteEvent(event: EventASG):Observable<any>{
     const options = {_id:String(event._id)};
+    console.log(options);
     //const header = new HttpHeaders().set( 'Authorization', 'Bearer ' + token);
   return  this.http.delete(this.url+'/api/deleteEvent', {params:options}).pipe(catchError(this.handleError));
   }
+
+  public socketEmitDeleteEvent(event:EventASG)
+  {
+    const options = {_id:String(event._id)};
+    this.socket.emit('deleteEvent',options);
+  }
+
+  public socketOnDeleteEvent():Observable<any>
+  {
+    return this.socket.fromEvent('deleteEvent').pipe(catchError(this.handleError));
+  } 
   public handleError(er:HttpErrorResponse){
     return throwError('Something went wrong, try again');
   }
@@ -249,6 +319,16 @@ public  updateUserPayment(_ev:string, paymentStatus: boolean, userID:string, fra
   return this.http.put(this.url+'/api/updateUserPayment', {params: options}).pipe(catchError(this.handleError));
 }
 
+public socketEmitUpdatePayment(_ev:string, paymentStatus: boolean, userID:string, frakcja: string)
+{
+  const options = {_id:_ev, strona:frakcja, _idGracz:userID, czy_oplacone: paymentStatus}
+  this.socket.emit('updatePayments',options);
+}
+
+public socketOnUpdatePayment():Observable<any>
+{
+  return this.socket.fromEvent('updatePayments').pipe(catchError(this.handleError));
+} 
 
 }
 

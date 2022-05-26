@@ -162,6 +162,10 @@ export class EventEditorComponent implements OnInit{
           }
 
     console.log(newEvent);
+    this.eventS.socketOnUpdateEvent().pipe(first()).subscribe(data => {
+      console.log(data);
+    });
+    this.eventS.socketEmitUpdateEvent(newEvent);
     this.eventS.updateEvent(newEvent).pipe(first()).subscribe(data=>{
 
             this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,
