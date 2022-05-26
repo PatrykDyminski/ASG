@@ -4,6 +4,7 @@ var https = require('follow-redirects').https;
 var Event = require('./models/event');
 const { stringify } = require('querystring');
 const payuConfig = require('./payu.config.json');
+const { checkBuyer, checkEvent } = require('./validate.js');
 
 var channel = null
 
@@ -364,90 +365,103 @@ function createOrder(req, access_token){
     var statusCode;
     var responseUrl;
     // console.log(req.body)
-    // console.log(checkBuyer(req.body))
-    // if (checkBuyer(req.body)) {
-    body = req.body
-    var options = {
-        'method': 'POST',
-        'hostname': 'secure.snd.payu.com',
-        'path': '/api/v2_1/orders',
-        'headers': {
-            'Authorization': 'Bearer ' + access_token,
-            'Content-Type': 'application/json',
-            'Cookie': payuConfig.cookie
-        },
-        'maxRedirects': 1
-    };
-    var req = https.request(options, function (res) {
-        var chunks = [];
-        res.on("data", function (chunk) {
-            chunks.push(chunk);
-        });
-        res.on("end", function (chunk) {
-            var body1 = Buffer.concat(chunks);
-            // console.log(res.responseUrl)
-            responseUrl = res.responseUrl
-            // console.log(body.toString());
-            if (res.statusCode != 200) {
-                console.log("error")
-                console.log(body1.toString())
-                res.status(res.statusCode).json({ message: "error" })
-            }
-            else {
-                statusCode = 302;
-                orderId = res.responseUrl.split('orderId=')[1].split('&')[0]
-                console.log("Order Id: " + orderId);
-                // res1.setHeader("Location", res.responseUrl);
-                // res.end();
+
+    if(checkBuyer(req.body) & checkEvent(req.body)) {
+        body = req.body
+        var options = {
+            'method': 'POST',
+            'hostname': 'secure.snd.payu.com',
+            'path': '/api/v2_1/orders',
+            'headers': {
+                'Authorization': 'Bearer ' + access_token,
+                'Content-Type': 'application/json',
+                'Cookie': payuConfig.cookie
+            },
+            'maxRedirects': 1
+        };
+        var req = https.request(options, function (res) {
+            var chunks = [];
+            res.on("data", function (chunk) {
+                chunks.push(chunk);
+            });
+            res.on("end", function (chunk) {
+                var body1 = Buffer.concat(chunks);
+                // console.log(res.responseUrl)
+                responseUrl = res.responseUrl
+                // console.log(body.toString());
+                if (res.statusCode != 200) {
+                    console.log("error")
+                    console.log(body1.toString())
+                    res.status(res.statusCode).json({ message: "error" })
+                }
+                else {
+                    statusCode = 302;
+                    orderId = res.responseUrl.split('orderId=')[1].split('&')[0]
+                    console.log("Order Id: " + orderId);
+                    // res1.setHeader("Location", res.responseUrl);
+                    // res.end();
+                    sendMessageToGatewayQueue({
+                        correlationId: request.correlationId,
+                        payload: {
+                            status: statusCode,
+                            body: {success:true, message:responseUrl}//, created_id: event._id}
+                        }
+                    });
+                }
+            });
+            res.on("error", function (error) {
+                console.error(error);
                 sendMessageToGatewayQueue({
                     correlationId: request.correlationId,
                     payload: {
-                        status: statusCode,
-                        body: {success:true, message:responseUrl}//, created_id: event._id}
+                        status: 400,
+                        body: {success:false, message: error}//, created_id: event._id}
                     }
                 });
-            }
-        });
-        res.on("error", function (error) {
-            console.error(error);
-            sendMessageToGatewayQueue({
-                correlationId: request.correlationId,
-                payload: {
-                    status: 400,
-                    body: {success:false, message: error}//, created_id: event._id}
-                }
             });
         });
-    });
-    var postData = JSON.stringify({
-        "notifyUrl": "http://localhost:3000/api/paymentRecieved",
-        // "notifyUrl": payuConfig.notifyUrl,
-        "continueUrl": "http://localhost:3000/api/orderDetails/1",
-        "customerIp": "127.0.0.1",
-        "merchantPosId": payuConfig.merchantPosId,
-        "description": body.eventName,
-        "visibleDescription": body.des,
-        "currencyCode": "PLN",
-        "totalAmount": body.price,
-        "products": [
-            {
-                "name": "Bilet na Wydarzenie 1",
-                "unitPrice": "10000",
-                "quantity": "1"
+        var postData = JSON.stringify({
+            "notifyUrl": "http://localhost:3000/api/paymentRecieved",
+            // "notifyUrl": payuConfig.notifyUrl,
+            "continueUrl": "http://localhost:3000/api/orderDetails/1",
+            "customerIp": "127.0.0.1",
+            "merchantPosId": payuConfig.merchantPosId,
+            "description": body.eventName,
+            "visibleDescription": body.des,
+            "currencyCode": "PLN",
+            "totalAmount": body.price,
+            "products": [
+                {
+                    "name": body.ticketName,
+                    "unitPrice": body.price,
+                    "quantity": "1",
+                    "listingDate": body.date+"+01:00"
+                }
+            ],
+            "buyer": {
+                "email": body.email,
+                "phone": body.phone,
+                "firstName": body.fname,
+                "lastName": body.lname,
+                "delivery": {
+                    "city": body.location,
+                    "street": body.date
+                }
             }
-        ],
-        "buyer": {
-            "email": body.email,
-            "phone": body.phone,
-            "firstName": body.fname,
-            "lastName": body.lname
-        }
-    });
-    req.write(postData);
-    req.end();
-    // } else {
-    //     res1.status(400).json({ message: "incorrect input data" })
-    // }    
+        });
+        req.write(postData);
+        req.end();
+    } else {
+        m = "incorrect input data"
+        console.log(m);
+        sendMessageToGatewayQueue({
+            correlationId: request.correlationId,
+            payload: {
+                status: 400,
+                body: {success:false, message: m}//, created_id: event._id}
+            }
+        });
+    }    
 }
 
 function orderDetails(params, access_token) {
@@ -477,9 +491,9 @@ function orderDetails(params, access_token) {
                 'LastName': buyer.lastName,
                 'FirstName': buyer.firstName,
                 'Email': buyer.email,
-                'EventName': body.orders[0].products[0].Name,
-                'EventDate': '2020-05-07T00:00:00',
-                'EventLocation': 'Wroclaw',
+                'EventName': body.orders[0].products[0].name,
+                'EventDate': buyer.delivery.street,
+                'EventLocation': buyer.delivery.city
             })
             console.log(body.orders[0].status)
             if (body.orders[0].status == 'COMPLETED') {
