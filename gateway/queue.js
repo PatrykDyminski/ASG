@@ -85,7 +85,11 @@ function parseResponse(message) {
     payload = parsed.payload
 
     if(payload.status){
-      caller.status(payload.status).json(payload.body)
+      if(payload.status == 302){
+        caller.status(302).redirect(payload.body.message)
+      } else {
+        caller.status(payload.status).json(payload.body)
+      }
     } else {
       caller.json(payload.body)
     }
