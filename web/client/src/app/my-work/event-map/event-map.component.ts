@@ -38,6 +38,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { deleteDialogComponent } from '../Snackbars/DeleteDialog';
 import {MatDialogModule} from '@angular/material/dialog';
 import { deletedEventSnackBarComponent } from '../Snackbars/DeletedEvent';
+import { TouchSequence } from 'selenium-webdriver';
 @Component({
   selector: 'app-event-map',
   templateUrl: './event-map.component.html',
@@ -76,6 +77,11 @@ export class EventMapComponent implements OnInit {
       }
       this.addFeatures();
     });
+
+    this.eventS.socketOnGetEvents().pipe().subscribe(data => {
+      console.log(data);
+    })
+    this.eventS.socketEmitGetEvents()
   }
 
 public checkIfShouldDisplay()
@@ -131,6 +137,13 @@ public disabledButton()
       this.response=e;
       alert(this.response.message);
     });
+    //skopiować z wyżej logikę
+    this.eventS.socketOnJoinFraction().pipe(first()).subscribe(data => {
+      this.response=data;
+      console.log(data);
+    })
+    this.eventS.socketEmitJoinFraction(event,name,this.loginS.user.userID, this.loginS.user.name, paymenet_done);
+    
   }
   else{
     this.snackBar.openFromComponent(loginSnackBarComponent, { duration: 5000,
@@ -141,6 +154,10 @@ public disabledButton()
 
 public unsignFromEvent(event:string)
 {
+  this.eventS.socketOnLeaveFraction().pipe(first()).subscribe(data => {
+    console.log(data);
+  });
+  this.eventS.socketEmitLeaveFraction(event,this.loginS.user.userID);
   this.eventS.leaveFraction(event,this.loginS.user.userID).subscribe(data=>{
     this.response=data;
     alert(this.response.message);
@@ -434,10 +451,15 @@ deleteEvent(ev: EventASG)
     const dialogRef = this.dialog.open(deleteDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if(result===true){
+        this.eventS.socketOnDeleteEvent().pipe(first()).subscribe(data => {
+          console.log(data);
+        });
+        this.eventS.socketEmitDeleteEvent(ev);
     this.eventS.deleteEvent(ev).pipe(first()).subscribe(data => {
      this.snackBar.openFromComponent(deletedEventSnackBarComponent, { duration: 5000,
       horizontalPosition: "center", verticalPosition: "top"});
       this.eventS.deleteEventInClient(ev);
+      window.location.reload();
       });
   
     }
@@ -486,7 +508,7 @@ paymentLogic()
  payForEvent(eventId: string, )
 {
   this.paymentLogic();
-
+  //web socket jeżeli potrzebny, tak samo, tylko inną metodę wywołać.
   this.eventS.updateUserPayment(eventId,true,this.loginS.user.userID, this.enlistedFraction).subscribe(data =>
     {
       this.response=data ;

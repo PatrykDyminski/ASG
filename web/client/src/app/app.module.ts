@@ -42,8 +42,9 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatRippleModule} from '@angular/material/core';
 import { deleteDialogComponent } from './my-work/Snackbars/DeleteDialog';
+import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io'
 
-
+const config: SocketIoConfig = {url: 'http://localhost:3300', options:{}}
 
 @NgModule({
   declarations: [
@@ -94,7 +95,8 @@ import { deleteDialogComponent } from './my-work/Snackbars/DeleteDialog';
     MatDividerModule,
     MatSidenavModule,
     MatRippleModule,
-    MatDialogModule
+    MatDialogModule,
+    SocketIoModule.forRoot(config)
   ],
   exports:[ReactiveFormsModule, FormsModule, CommonModule],
   providers: [LoginService, CookieService, EventServiceService],

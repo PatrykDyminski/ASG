@@ -1,4 +1,5 @@
-﻿using Notifiactions.Data;
+﻿using NJsonSchema;
+using Notifiactions.Data;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -52,10 +53,19 @@ public class EventSignInReceiver : BackgroundService
 
   private void OnSignInCreateReceived(BasicDeliverEventArgs message)
   {
-    var notif = JsonSerializer.Deserialize<Notification>(
-      Encoding.UTF8.GetString(
-        message.Body.ToArray()
-      ));
+    var json = Encoding.UTF8.GetString(message.Body.ToArray());
+
+    var schema = JsonSchema.FromType<NotificationSchema>();      
+    var result = schema.Validate(json);
+
+    if(result.Count != 0)
+    {
+      Console.WriteLine("Wrong Object");
+      _channel.BasicNack(message.DeliveryTag, false, false);
+      return;
+    }
+
+    var notif = JsonSerializer.Deserialize<Notification>(json);
 
     if (notif == null)
     {

@@ -27,6 +27,7 @@
     "help": "^3.0.2",
     "material": "^0.4.3",
     "ngx-cookie-service": "^10.0.1",
+    "ngx-socket-io": "^4.2.0",
     "ol": "^6.4.3",
     "ol-ext": "^3.2.22",
     "openlayers-ext": "^3.1.5",

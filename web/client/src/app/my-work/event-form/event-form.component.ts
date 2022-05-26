@@ -141,6 +141,10 @@ export class EventFormComponent implements OnInit{
           }
     var to_refresh=true;
     console.log(newEvent);
+    this.eventS.socketOnPostEvent().pipe(first()).subscribe(data => {
+      console.log(data);
+    });
+    this.eventS.socketEmitPostEvent(newEvent);
     this.eventS.postEvent(newEvent).pipe(first()).subscribe(data=>{
             newEvent._id=data.created_id;
             this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,

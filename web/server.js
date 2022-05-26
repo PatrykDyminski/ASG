@@ -10,11 +10,22 @@ var passport = require('passport');
 var social = require('./passport/passport')(app,passport);
 var cors = require('cors');
 const jwt = require('jsonwebtoken');
-const socketIO = require('socket.io');
+const socketIO = require('socket.io')();
+
 
 const server=express().use(app).listen(3000);
 const io=socketIO(server);
 
+io.on('connection',(socket) => {
+    console.log('user connected');
+    socket.on('disconnect', function() {
+        console.log('user disconnected');
+    })
+
+    socket.on('getEvents', () => {
+        io.emit("getEvents",{text:"events"});
+    })
+})
 
 app.use(express.static(__dirname+'/client/dist'));
 app.use(morgan('dev'));

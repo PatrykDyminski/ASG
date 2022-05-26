@@ -248,7 +248,8 @@ async function parseResponse(message){
       })}
   }
   else if(req.endpoint === "deleteEvent") {
-      Event.remove({_id:req.query._id},function(error,result){
+      console.log(req.body);
+      Event.deleteOne({_id:req.body._id},function(error,result){
           if(error){
           console.log(error);
           sendMessageToGatewayQueue({
