@@ -61,50 +61,22 @@ router.get('/user',checkToken,function(req,res){
     
 })
 
-// NEW EVENTS
-
-router.get('/testEvents', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: 'testEvents', body: {}}, res)
-})
-
-router.post('/event', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: 'event', body: req.body}, res)
-})
-
-router.get('/events',function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: 'events', body: {}}, res)
-})
-
-router.put('/unsignUser',function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "unsignUser", body: req.body}, res)
-})
-
-router.put('/updateEvent',async function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "updateEvent", body: req.body}, res)    
-})
-
-router.put('/signUser',async function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "signUser", body: req.body}, res)    
-})
-
-router.delete('/deleteEvent', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "deleteEvent", body: req.query}, res)    
-})
+// PAYMENTS
 
 router.put('/updateUserPayment', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "updateUserPayment", body: req.body}, res)
+    queue.sendMessageToEventsQueue("updateUserPayment", {body: req.body}, res)
 })
 
 router.get('/payment/authorize', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "payment/authorize", body: {}}, res)
+    queue.sendMessageToEventsQueue("payment/authorize", {body: {}}, res)
 })
 
 router.post('/payment/createOrder', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: 'payment/createOrder', body: req.body}, res)
+    queue.sendMessageToEventsQueue('payment/createOrder', {body: req.body}, res)
 })
 
 router.get('/orderDetails/1', function(req,res){
-    queue.sendMessageToEventsQueue({endpoint: "orderDetails/1", body: {}}, res)
+    queue.sendMessageToEventsQueue("orderDetails/1", {body: {}}, res)
 })
 
 // NOTIFICATIONS

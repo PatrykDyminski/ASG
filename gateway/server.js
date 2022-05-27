@@ -1,5 +1,6 @@
-var express = require ('express');
-var app= express();
+let express = require('express');
+let app = express();
+let http = require('http').Server(app)
 var path = require('path');
 var mongoose = require('mongoose');
 var morgan = require('morgan');
@@ -15,10 +16,33 @@ const queue = require("./queue.js")
 
 queue.init()
 
-const server=express().use(app).listen(3000);
-const io=socketIO(server);
+const io = require('socket.io')(http, {cors: {
+  methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS']
+}});
 
-
+  io.on('connection', socket => {
+      console.log("user connected");
+      socket.on('disconnect', () => console.log('disconnected'));
+      socket.on('getEvents', (data) => {
+        queue.sendMessageToEventsQueue("getEvents", {body: data}, socket)
+      })
+      socket.on('joinFraction', (data) => {
+        queue.sendMessageToEventsQueue("joinFraction", {body: data}, socket)
+      })
+      socket.on('leaveFraction', (data) => {
+        queue.sendMessageToEventsQueue("leaveFraction", {body: data}, socket)
+      })
+      socket.on('postEvent', (data) => {
+        queue.sendMessageToEventsQueue("postEvent", {body: data}, socket)
+      })
+      socket.on('updateEvent', (data) => {
+        queue.sendMessageToEventsQueue("updateEvent", {body: data}, socket)
+      })
+      socket.on('deleteEvent', (data) => {
+        queue.sendMessageToEventsQueue("deleteEvent", {body: data}, socket)
+      })
+  });
+  
 app.use(function (err, req, res, next) {
     var responseData;
   
@@ -64,6 +88,11 @@ app.use(function(req, res, next) {
 app.use('/api',appRoutes);
 
 console.log("GATEWAY WORKING")
+
+
+http.listen(3002, () => {
+  console.log('started on port 3300');
+})
 
 // mongoose.Promise=global.Promise;
 // mongoose.connect('mongodb://localhost:27017/AsgApp',  { useNewUrlParser: true,useUnifiedTopology: true },function (err){

@@ -100,17 +100,18 @@ async function parseResponse(message){
 
   request = JSON.parse(message)
   req = request.payload
-  if (req.endpoint === "testEvents"){
+  if (req.emitedEvent === "testEvents"){
       console.log("TEST EVENTS CONNECTION")
       sendMessageToGatewayQueue({
           correlationId: request.correlationId,
+          emitedEvent: request.emitedEvent,
           payload: {
               status: 200,
               body: {success:true, message:"Połączono"}
           }
       })
   }
-  if (req.endpoint === "event"){
+  if (req.emitedEvent === "postEvent"){
       new Event({
           organizator:req.body.organizator,
           nazwa:req.body.nazwa,
@@ -130,6 +131,7 @@ async function parseResponse(message){
                   console.log(err);
                   sendMessageToGatewayQueue({
                       correlationId: request.correlationId,
+                      emitedEvent: request.emitedEvent,
                       payload: {
                           status: 400,
                           body: {success:false, message:"Wystąpił błąd", created_id:''}
@@ -141,6 +143,7 @@ async function parseResponse(message){
                   console.log(err);
                   sendMessageToGatewayQueue({
                       correlationId: request.correlationId,
+                      emitedEvent: request.emitedEvent,
                       payload: {
                           status: 200,
                           body: {success:true,message:'Utworzono wydarzenie', created_id: event._id}
@@ -149,7 +152,7 @@ async function parseResponse(message){
               }
           });
   }
-  else if(req.endpoint === "events"){
+  else if(req.emitedEvent === "getEvents"){
       var date = new Date();
       date.setDate(date.getDate()-1);
       date.setHours(23,59,59);
@@ -160,6 +163,7 @@ async function parseResponse(message){
           else{
               sendMessageToGatewayQueue({
                   correlationId: request.correlationId,
+                  emitedEvent: request.emitedEvent,
                   payload: {
                       body: result
                   }
@@ -167,12 +171,13 @@ async function parseResponse(message){
           }
       });
   }
-  else if(req.endpoint === "unsignUser"){
+  else if(req.emitedEvent === "leaveFraction"){
       Event.updateOne({"_id":req.body._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body.gracz}}},{safe:true,multi:true},function(error,result){
           if(error){
               console.log(error);
               sendMessageToGatewayQueue({
                   correlationId: request.correlationId,
+                  emitedEvent: request.emitedEvent,
                   payload: {
                       body: {success:false,message:"Wystąpił błąd"}
                   }
@@ -181,6 +186,7 @@ async function parseResponse(message){
               else{
                   sendMessageToGatewayQueue({
                       correlationId: request.correlationId,
+                      emitedEvent: request.emitedEvent,
                       payload: {
                           body: {success:true,message:"Wypisano z wydarzenia"}
                       }
@@ -188,12 +194,13 @@ async function parseResponse(message){
               }
       })
   }
-  else if(req.endpoint === "updateEvent"){
+  else if(req.emitedEvent === "updateEvent"){
       await Event.updateOne({_id:req.body._id},req.body,function(error,result){
           if(error){
           console.log(error);
           sendMessageToGatewayQueue({
               correlationId: request.correlationId,
+              emitedEvent: request.emitedEvent,
               payload: {
                   body: {success:false,message:"Wystąpił błąd"}
               }
@@ -202,6 +209,7 @@ async function parseResponse(message){
           else{
               sendMessageToGatewayQueue({
                   correlationId: request.correlationId,
+                  emitedEvent: request.emitedEvent,
                   payload: {
                       body: {success:true,message:"Wydarzenie zaaktualizowane"}
                   }
@@ -209,10 +217,11 @@ async function parseResponse(message){
           }
       });
   }
-  else if(req.endpoint === "signUser"){
+  else if(req.emitedEvent === "joinFraction"){
       if(req.body.params._id==='') {
           sendMessageToGatewayQueue({
               correlationId: request.correlationId,
+              emitedEvent: request.emitedEvent,
               payload: {
                   status: 200,
                   body: {success:false, message:' Musisz być zalogowany'}
@@ -230,6 +239,7 @@ async function parseResponse(message){
              {
               sendMessageToGatewayQueue({
                   correlationId: request.correlationId,
+                  emitedEvent: request.emitedEvent,
                   payload: {
                       body: {message:"Już jesteś zapisany"}
                   }
@@ -238,6 +248,7 @@ async function parseResponse(message){
              else{
               sendMessageToGatewayQueue({
                   correlationId: request.correlationId,
+                  emitedEvent: request.emitedEvent,
                   payload: {
                       body: {message:"Zostałeś zapisany"}
                   }
@@ -247,13 +258,14 @@ async function parseResponse(message){
          }
       })}
   }
-  else if(req.endpoint === "deleteEvent") {
+  else if(req.emitedEvent === "deleteEvent") {
       console.log(req.body);
       Event.deleteOne({_id:req.body._id},function(error,result){
           if(error){
           console.log(error);
           sendMessageToGatewayQueue({
               correlationId: request.correlationId,
+              emitedEvent: request.emitedEvent,
               payload: {
                   body: {success:false,message:"Wystąpił błąd"}
               }
@@ -269,7 +281,7 @@ async function parseResponse(message){
           }
       })
   }
-  else if (req.endpoint === "updateUserPayment") {
+  else if (req.emitedEvent === "updateUserPayment") {
     Event.updateOne({_id:req.body.params._id},
         {
             $set: {
@@ -291,6 +303,7 @@ async function parseResponse(message){
                 console.log(error);
                 sendMessageToGatewayQueue({
                     correlationId: request.correlationId,
+                    emitedEvent: request.emitedEvent,
                     payload: {
                         body: {success:false,message:"Wystąpił błąd"}
                     }
@@ -299,6 +312,7 @@ async function parseResponse(message){
                 else{
                     sendMessageToGatewayQueue({
                         correlationId: request.correlationId,
+                        emitedEvent: request.emitedEvent,
                         payload: {
                             body: {success:true,message:"Zapisano opłatę"}
                         }
@@ -306,10 +320,10 @@ async function parseResponse(message){
                 }
     });
   }
-  else if (req.endpoint === "payment/createOrder"){
+  else if (req.emitedEvent === "payment/createOrder"){
     createOrder(req, access_token);
   }
-  else if(req.endpoint == "orderDetails/1"){
+  else if(req.emitedEvent == "orderDetails/1"){
     orderDetails(req, access_token);
   }
 }
@@ -414,6 +428,7 @@ function createOrder(req, access_token){
                 console.error(error);
                 sendMessageToGatewayQueue({
                     correlationId: request.correlationId,
+                    emitedEvent: request.emitedEvent,
                     payload: {
                         status: 400,
                         body: {success:false, message: error}//, created_id: event._id}
@@ -457,6 +472,7 @@ function createOrder(req, access_token){
         console.log(m);
         sendMessageToGatewayQueue({
             correlationId: request.correlationId,
+            emitedEvent: request.emitedEvent,
             payload: {
                 status: 400,
                 body: {success:false, message: m}//, created_id: event._id}
@@ -501,6 +517,7 @@ function orderDetails(params, access_token) {
                 sendM.sendMessage(message, '127.0.0.1', 'UserSignedInForEvent');
                 sendMessageToGatewayQueue({
                     correlationId: request.correlationId,
+                    emitedEvent: request.emitedEvent,
                     payload: {
                         status: 200,
                         body: {success:true, message:  message}
@@ -512,6 +529,7 @@ function orderDetails(params, access_token) {
             console.error(error);
             sendMessageToGatewayQueue({
                 correlationId: request.correlationId,
+                emitedEvent: request.emitedEvent,
                 payload: {
                     status: 400,
                     body: {success:false, message: "error"}

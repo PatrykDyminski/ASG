@@ -68,30 +68,27 @@ function generateCallerId() {
     return (+new Date).toString(36);
 }
 
-function sendMessageToEventsQueue(message, callerCallback) {
+function sendMessageToEventsQueue(emitedEvent, message, callerCallback) {
     callerId = generateCallerId()
     callers[callerId] = callerCallback
     payload = {
         correlationId: callerId,
+        emitedEvent: emitedEvent,
         payload: message
     }
     
     sendToQueueHelper(payload)
 }
-
+``
 function parseResponse(message) {
     parsed = JSON.parse(message)
     caller = callers[parsed.correlationId]
     payload = parsed.payload
 
-    if(payload.status){
-      if(payload.status == 302){
-        caller.status(302).redirect(payload.body.message)
-      } else {
-        caller.status(payload.status).json(payload.body)
-      }
+    if((payload.status) && (payload.status == 302)) {
+        caller.emit(parsed.emitedEvent, payload.body.message)
     } else {
-      caller.json(payload.body)
+      caller.emit(parsed.emitedEvent, payload.body)
     }
 }
 module.exports = {

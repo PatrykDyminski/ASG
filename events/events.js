@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 // const socketIO = require('socket.io');
 
-// const io=socketIO(server);
 const queue = require("./queue.js")
 
 queue.init()
