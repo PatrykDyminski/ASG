@@ -21,7 +21,7 @@ export class EventServiceService {
   public eventToEdit: EventASG = null;
 
   
-  url='http://127.0.0.1:3000';
+  url='http://127.0.0.1:3010';
   constructor(private http: HttpClient, private socket: Socket) {
     //this.socket = io(this.socketUrl)
   }
@@ -329,6 +329,24 @@ public socketOnUpdatePayment():Observable<any>
 {
   return this.socket.fromEvent('updatePayments').pipe(catchError(this.handleError));
 } 
+
+public socketEmitPay(_mail: string, _name: string, _surname:string, _phone:string, _eName:string, _location: string, _date: string, _price:number )
+{
+  const options = {email: _mail ,phone: _phone, fname: _name, lname: _surname, eventName: _eName, ticketName: "Bilet na" + _eName, des: "Opis jest bardzo długi i rozbudowany", location:_location, price: _price*100, date: _date }
+  console.log(options);
+  this.socket.emit('createOrder',options);
+}
+
+public socketOnPay():Observable<any>
+{
+  return this.socket.fromEvent('payment/createOrder').pipe(catchError(this.handleError));
+}
+
+public payForEvent()
+{
+  const options = {}
+  return this.http.put(this.url+'/api/updateEvent', options).pipe(catchError(this.handleError));
+}
 
 }
 

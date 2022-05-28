@@ -66,7 +66,7 @@ export class EventMapComponent implements OnInit {
     replicas = ["Karabiny snajperskie", "Karabiny wyborowe", "Karabiny wsparcia", "Karabiny szturmowe", "Bliski dystans"]
 
   constructor(public eventS: EventServiceService, public loginS: LoginService, private snackBar: MatSnackBar, private dialog: MatDialog) {
-    this.eventS.getEvents().pipe(first()).subscribe(events => {
+    /*this.eventS.getEvents().pipe(first()).subscribe(events => {
       this.eventS.eventsList = events;
       this.eventS.eventsListSearch = events;
       this.eventS.setPaginatorList(0);
@@ -76,10 +76,19 @@ export class EventMapComponent implements OnInit {
         this.eventS.setPaginatorUsersEvents(0);
       }
       this.addFeatures();
-    });
+    });*/
 
-    this.eventS.socketOnGetEvents().pipe().subscribe(data => {
-      console.log(data);
+    this.eventS.socketOnGetEvents().pipe().subscribe(events => {
+      console.log(events);
+      this.eventS.eventsList = events;
+      this.eventS.eventsListSearch = events;
+      this.eventS.setPaginatorList(0);
+      if(this.loginS.logged===true)
+      {
+        this.eventS.fillUsersEvents(this.loginS.user.userID);
+        this.eventS.setPaginatorUsersEvents(0);
+      }
+      this.addFeatures();
     })
     this.eventS.socketEmitGetEvents()
   }
@@ -128,7 +137,7 @@ public disabledButton()
       this.paymentLogic();
 
       //jeżeli opłata się powiodła, przypisać odpowiednią wartość do payment_done
-    this.eventS.joinFraction(event,name,this.loginS.user.userID, this.loginS.user.name, paymenet_done).subscribe(data=>{
+    /*this.eventS.joinFraction(event,name,this.loginS.user.userID, this.loginS.user.name, paymenet_done).subscribe(data=>{
       this.response=data ;
       console.log(this.response.message);
       this.eventS.addPlayerInClient(event,name,this.loginS.user.userID,this.loginS.user.name, paymenet_done); // false- default dla czy_oplacone
@@ -136,11 +145,16 @@ public disabledButton()
     }, e =>{
       this.response=e;
       alert(this.response.message);
-    });
+    });*/
     //skopiować z wyżej logikę
-    this.eventS.socketOnJoinFraction().pipe(first()).subscribe(data => {
-      this.response=data;
-      console.log(data);
+    this.eventS.socketOnJoinFraction().pipe(first()).subscribe(data=>{
+      this.response=data ;
+      console.log(this.response.message);
+      this.eventS.addPlayerInClient(event,name,this.loginS.user.userID,this.loginS.user.name, paymenet_done); // false- default dla czy_oplacone
+      this.eventToDisplay=this.eventS.eventsList.find((item)=> (item._id===event));
+    }, e =>{
+      this.response=e;
+      alert(this.response.message);
     })
     this.eventS.socketEmitJoinFraction(event,name,this.loginS.user.userID, this.loginS.user.name, paymenet_done);
     
@@ -154,17 +168,22 @@ public disabledButton()
 
 public unsignFromEvent(event:string)
 {
-  this.eventS.socketOnLeaveFraction().pipe(first()).subscribe(data => {
-    console.log(data);
-  });
-  this.eventS.socketEmitLeaveFraction(event,this.loginS.user.userID);
-  this.eventS.leaveFraction(event,this.loginS.user.userID).subscribe(data=>{
+  this.eventS.socketOnLeaveFraction().pipe(first()).subscribe(data=>{
     this.response=data;
     alert(this.response.message);
     this.eventS.deletePlayerInClient(event,this.enlistedFraction,this.loginS.user.userID);
     this.eventToDisplay=this.eventS.eventsList.find((item)=> (item._id===event));
 },e=>{ this.response=e;
-  alert(this.response.message);} );
+  alert(this.response.message);
+  });
+  this.eventS.socketEmitLeaveFraction(event,this.loginS.user.userID);
+ /* this.eventS.leaveFraction(event,this.loginS.user.userID).subscribe(data=>{
+    this.response=data;
+    alert(this.response.message);
+    this.eventS.deletePlayerInClient(event,this.enlistedFraction,this.loginS.user.userID);
+    this.eventToDisplay=this.eventS.eventsList.find((item)=> (item._id===event));
+},e=>{ this.response=e;
+  alert(this.response.message);} );*/
 }
 
   public countPlayers()
@@ -453,14 +472,18 @@ deleteEvent(ev: EventASG)
       if(result===true){
         this.eventS.socketOnDeleteEvent().pipe(first()).subscribe(data => {
           console.log(data);
+          this.snackBar.openFromComponent(deletedEventSnackBarComponent, { duration: 5000,
+            horizontalPosition: "center", verticalPosition: "top"});
+            this.eventS.deleteEventInClient(ev);
         });
         this.eventS.socketEmitDeleteEvent(ev);
-    this.eventS.deleteEvent(ev).pipe(first()).subscribe(data => {
-     this.snackBar.openFromComponent(deletedEventSnackBarComponent, { duration: 5000,
-      horizontalPosition: "center", verticalPosition: "top"});
-      this.eventS.deleteEventInClient(ev);
-      window.location.reload();
-      });
+
+     /* this.eventS.deleteEvent(ev).pipe(first()).subscribe(data => {
+        this.snackBar.openFromComponent(deletedEventSnackBarComponent, { duration: 5000,
+        horizontalPosition: "center", verticalPosition: "top"});
+        this.eventS.deleteEventInClient(ev);
+        window.location.reload();
+      });*/
   
     }
   })
@@ -499,17 +522,21 @@ checkIfPayed(_ev:string)
       this.map.getView().setCenter(coor);
       this.map.getView().setZoom(10);
 }
-paymentLogic()
+paymentLogic():Observable<any>
 {
 
-  
+  this.eventS.socketEmitPay(this.loginS.user.mail, this.loginS.user.name.split(" ")[0],this.loginS.user.name.split(" ")[1],"123456789",this.eventToDisplay.nazwa,this.eventToDisplay.miejsce,
+  this.eventToDisplay.termin,this.eventToDisplay.oplata ) 
+  return this.eventS.socketOnPay();
 }
 
  payForEvent(eventId: string, )
 {
-  this.paymentLogic();
+  this.paymentLogic().pipe(first()).subscribe(data => {
+    window.location.href = data;
+  });
   //web socket jeżeli potrzebny, tak samo, tylko inną metodę wywołać.
-  this.eventS.updateUserPayment(eventId,true,this.loginS.user.userID, this.enlistedFraction).subscribe(data =>
+ /* this.eventS.updateUserPayment(eventId,true,this.loginS.user.userID, this.enlistedFraction).subscribe(data =>
     {
       this.response=data ;
       console.log(this.response.message);
@@ -519,7 +546,7 @@ paymentLogic()
       console.log("error");
         this.response=e;
         alert(this.response.message)
-    });
+    });*/
 
  
 };

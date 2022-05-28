@@ -164,9 +164,17 @@ export class EventEditorComponent implements OnInit{
     console.log(newEvent);
     this.eventS.socketOnUpdateEvent().pipe(first()).subscribe(data => {
       console.log(data);
+      this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,
+        horizontalPosition: "center", verticalPosition: "top"});
+        this.eventS.updateEventInClient(newEvent);
+        this.myFormInfo.reset();
+        this.myFormLimits.reset();
+        this.FormFractions.reset();
+        this.myFormDescirption.reset();
+        this.eventS.eventToEdit=null;
     });
     this.eventS.socketEmitUpdateEvent(newEvent);
-    this.eventS.updateEvent(newEvent).pipe(first()).subscribe(data=>{
+   /* this.eventS.updateEvent(newEvent).pipe(first()).subscribe(data=>{
 
             this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,
             horizontalPosition: "center", verticalPosition: "top"});
@@ -177,7 +185,7 @@ export class EventEditorComponent implements OnInit{
             this.myFormDescirption.reset();
             this.eventS.eventToEdit=null;
 
-          });
+          });*/
     }
     else{
       this.snackBar.openFromComponent(formErrorSnackBarComponent,{ duration: 5000,

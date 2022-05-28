@@ -41,6 +41,18 @@ const io = require('socket.io')(http, {cors: {
       socket.on('deleteEvent', (data) => {
         queue.sendMessageToEventsQueue("deleteEvent", {body: data}, socket)
       })
+      socket.on('createOrder', (data) => {
+        queue.sendMessageToEventsQueue('payment/createOrder', {body: data},socket)
+      })
+      socket.on('updateUserPayment', (data) => {
+        queue.sendMessageToEventsQueue('/updateUserPayment', {body: data},socket)
+      })
+      socket.on('authorize', (data) => {
+        queue.sendMessageToEventsQueue('payment/authorize', {body: data},socket)
+      })
+      socket.on('orderDetails', (data) => {
+        queue.sendMessageToEventsQueue('orderDetails/1', {body: data},socket)
+      })
   });
   
 app.use(function (err, req, res, next) {
@@ -90,8 +102,8 @@ app.use('/api',appRoutes);
 console.log("GATEWAY WORKING")
 
 
-http.listen(3002, () => {
-  console.log('started on port 3300');
+http.listen(3010, () => {
+  console.log('started on port 3010');
 })
 
 // mongoose.Promise=global.Promise;

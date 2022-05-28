@@ -44,7 +44,7 @@ import {MatRippleModule} from '@angular/material/core';
 import { deleteDialogComponent } from './my-work/Snackbars/DeleteDialog';
 import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io'
 
-const config: SocketIoConfig = {url: 'http://localhost:3300', options:{}}
+const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
 
 @NgModule({
   declarations: [

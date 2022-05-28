@@ -100,6 +100,7 @@ async function parseResponse(message){
 
   request = JSON.parse(message)
   req = request.payload
+  console.log(req);
   if (req.emitedEvent === "testEvents"){
       console.log("TEST EVENTS CONNECTION")
       sendMessageToGatewayQueue({
@@ -111,7 +112,7 @@ async function parseResponse(message){
           }
       })
   }
-  if (req.emitedEvent === "postEvent"){
+  if (request.emitedEvent === "postEvent"){
       new Event({
           organizator:req.body.organizator,
           nazwa:req.body.nazwa,
@@ -152,7 +153,7 @@ async function parseResponse(message){
               }
           });
   }
-  else if(req.emitedEvent === "getEvents"){
+  else if(request.emitedEvent === "getEvents"){
       var date = new Date();
       date.setDate(date.getDate()-1);
       date.setHours(23,59,59);
@@ -171,7 +172,7 @@ async function parseResponse(message){
           }
       });
   }
-  else if(req.emitedEvent === "leaveFraction"){
+  else if(request.emitedEvent === "leaveFraction"){
       Event.updateOne({"_id":req.body._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body.gracz}}},{safe:true,multi:true},function(error,result){
           if(error){
               console.log(error);
@@ -194,7 +195,7 @@ async function parseResponse(message){
               }
       })
   }
-  else if(req.emitedEvent === "updateEvent"){
+  else if(request.emitedEvent === "updateEvent"){
       await Event.updateOne({_id:req.body._id},req.body,function(error,result){
           if(error){
           console.log(error);
@@ -217,8 +218,8 @@ async function parseResponse(message){
           }
       });
   }
-  else if(req.emitedEvent === "joinFraction"){
-      if(req.body.params._id==='') {
+  else if(request.emitedEvent === "joinFraction"){
+      if(req.body._id==='') {
           sendMessageToGatewayQueue({
               correlationId: request.correlationId,
               emitedEvent: request.emitedEvent,
@@ -229,9 +230,9 @@ async function parseResponse(message){
           })
       }
       else {
-      await Event.updateOne({"_id":req.body.params._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body.params._idGracz}}},{safe:true,multi:true});
-      await Event.updateOne({"_id":req.body.params._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body.params._idGracz,imie:req.body.params.gracz}}},
-      {arrayFilters:[{"s.strona":req.body.params.strona}],upsert:true},function(error,result){
+      await Event.updateOne({"_id":req.body._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body._idGracz}}},{safe:true,multi:true});
+      await Event.updateOne({"_id":req.body._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body._idGracz,imie:req.body.gracz}}},
+      {arrayFilters:[{"s.strona":req.body.strona}],upsert:true},function(error,result){
          if(error)
          console.log(error);
          else{
@@ -258,7 +259,7 @@ async function parseResponse(message){
          }
       })}
   }
-  else if(req.emitedEvent === "deleteEvent") {
+  else if(request.emitedEvent === "deleteEvent") {
       console.log(req.body);
       Event.deleteOne({_id:req.body._id},function(error,result){
           if(error){
@@ -281,7 +282,7 @@ async function parseResponse(message){
           }
       })
   }
-  else if (req.emitedEvent === "updateUserPayment") {
+  else if (request.emitedEvent === "updateUserPayment") {
     Event.updateOne({_id:req.body.params._id},
         {
             $set: {
@@ -320,10 +321,10 @@ async function parseResponse(message){
                 }
     });
   }
-  else if (req.emitedEvent === "payment/createOrder"){
+  else if (request.emitedEvent === "payment/createOrder"){
     createOrder(req, access_token);
   }
-  else if(req.emitedEvent == "orderDetails/1"){
+  else if(request.emitedEvent == "orderDetails/1"){
     orderDetails(req, access_token);
   }
 }
@@ -379,7 +380,7 @@ function authorize() {
 function createOrder(req, access_token){
     var statusCode;
     var responseUrl;
-    // console.log(req.body)
+     console.log(req.body)
 
     if(checkBuyer(req.body) & checkEvent(req.body)) {
         body = req.body
@@ -402,7 +403,7 @@ function createOrder(req, access_token){
             res.on("end", function (chunk) {
                 var body1 = Buffer.concat(chunks);
                 // console.log(res.responseUrl)
-                responseUrl = res.responseUrl
+                responseUrl = res.responseUrl;
                 // console.log(body.toString());
                 if (res.statusCode != 200) {
                     console.log("error")
@@ -417,6 +418,7 @@ function createOrder(req, access_token){
                     // res.end();
                     sendMessageToGatewayQueue({
                         correlationId: request.correlationId,
+                        emitedEvent: request.emitedEvent,
                         payload: {
                             status: statusCode,
                             body: {success:true, message:responseUrl}//, created_id: event._id}
@@ -451,7 +453,7 @@ function createOrder(req, access_token){
                     "name": body.ticketName,
                     "unitPrice": body.price,
                     "quantity": "1",
-                    "listingDate": body.date+"+01:00"
+                    "listingDate": body.date
                 }
             ],
             "buyer": {

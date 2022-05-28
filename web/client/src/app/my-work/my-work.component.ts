@@ -24,6 +24,7 @@ export class MyWorkComponent implements OnInit {
     {
 
       this.loginS.Login(this.token).pipe(first()).subscribe(data=>{
+        console.log(data);
         this.loginS.user = data.body;
         this.loginS.logged=true;
       },e =>{cookieService.delete('ASGjwt');

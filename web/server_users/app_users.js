@@ -40,7 +40,7 @@ const checkToken = (req, res, next) => {
 
 router.get('/user',checkToken,function(req,res){
     
-    User.findOne({googleID:req.decoded.userID}).select('googleID googleName photo').exec((err,user)=>{
+    User.findOne({googleID:req.decoded.userID}).select('googleID googleName photo email').exec((err,user)=>{
         if(err)
         {
             res.json({succes:false,message:"Wystąpił błąd"});

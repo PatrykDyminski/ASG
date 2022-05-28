@@ -143,9 +143,27 @@ export class EventFormComponent implements OnInit{
     console.log(newEvent);
     this.eventS.socketOnPostEvent().pipe(first()).subscribe(data => {
       console.log(data);
+      newEvent._id=data.created_id;
+      this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,
+      horizontalPosition: "center", verticalPosition: "top"});
+      this.eventS.addEventInClient(newEvent);
+      this.refreshFeatures.emit();
+      this.myFormDescirption.reset();
+      this.myFormDescirption.markAsPristine();
+      this.myFormLimits.markAsPristine();
+      this.myFormInfo.reset();
+      this.myFormInfo.markAsPristine();
+      this.myFormLimits.reset();
+      this.frakcjeForm.reset();
+      this.frakcjeForm.markAsPristine();
+
+      to_refresh=false;
     });
+
+    
     this.eventS.socketEmitPostEvent(newEvent);
-    this.eventS.postEvent(newEvent).pipe(first()).subscribe(data=>{
+    
+   /* this.eventS.postEvent(newEvent).pipe(first()).subscribe(data=>{
             newEvent._id=data.created_id;
             this.snackBar.openFromComponent(newEventSnackBarComponent,{duration: 5000,
             horizontalPosition: "center", verticalPosition: "top"});
@@ -161,7 +179,7 @@ export class EventFormComponent implements OnInit{
             this.frakcjeForm.markAsPristine();
 
             to_refresh=false;
-          });
+          });*/
     }
     else{
       this.snackBar.openFromComponent(formErrorSnackBarComponent,{ duration: 5000,
