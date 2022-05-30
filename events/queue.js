@@ -324,7 +324,7 @@ async function parseResponse(message){
   else if (request.emitedEvent === "payment/createOrder"){
     createOrder(req, access_token);
   }
-  else if(request.emitedEvent == "orderDetails/1"){
+  else if(request.emitedEvent == "orderDetails"){
     orderDetails(req, access_token);
   }
 }
@@ -339,6 +339,7 @@ var https = require('follow-redirects').https;
 const sendM = require("./sendMessage.js");
 var access_token
 var orderId
+var orders = {}
 
 function authorize() {
     var postData = stringify({
@@ -380,7 +381,9 @@ function authorize() {
 function createOrder(req, access_token){
     var statusCode;
     var responseUrl;
-     console.log(req.body)
+    console.log(req.body)
+    var extOrderId = req.body.extOrderId
+    var id = extOrderId+"-"+(+new Date).toString(36)
 
     if(checkBuyer(req.body) & checkEvent(req.body)) {
         body = req.body
@@ -414,6 +417,7 @@ function createOrder(req, access_token){
                     statusCode = 302;
                     orderId = res.responseUrl.split('orderId=')[1].split('&')[0]
                     console.log("Order Id: " + orderId);
+                    orders[id] = orderId
                     // res1.setHeader("Location", res.responseUrl);
                     // res.end();
                     sendMessageToGatewayQueue({
@@ -439,9 +443,9 @@ function createOrder(req, access_token){
             });
         });
         var postData = JSON.stringify({
-            "notifyUrl": "http://localhost:3000/api/paymentRecieved",
+            "notifyUrl": "http://localhost:3010/api/paymentRecieved",
             // "notifyUrl": payuConfig.notifyUrl,
-            "continueUrl": "http://localhost:3000/api/orderDetails/1",
+            "continueUrl": "http://localhost:3010/api/orderDetails/"+id,
             "customerIp": "127.0.0.1",
             "merchantPosId": payuConfig.merchantPosId,
             "description": body.eventName,
@@ -484,11 +488,12 @@ function createOrder(req, access_token){
 }
 
 function orderDetails(params, access_token) {
-    console.log(orderId);
+    id = params.body;
+    console.log(id + " " + orders[id]);
     var options = {
         'method': 'GET',
         'hostname': 'secure.snd.payu.com',
-        'path': '/api/v2_1/orders/' + orderId,
+        'path': '/api/v2_1/orders/' + orders[id],
         'headers': {
             'Authorization': 'Bearer ' + access_token,
             'Cookie': payuConfig.cookie
@@ -506,14 +511,17 @@ function orderDetails(params, access_token) {
             body = JSON.parse(body.toString())
             // res.status(200).json(body);
             buyer = body.orders[0].buyer;
-            message = JSON.stringify({
+            m = {
                 'LastName': buyer.lastName,
                 'FirstName': buyer.firstName,
                 'Email': buyer.email,
                 'EventName': body.orders[0].products[0].name,
                 'EventDate': buyer.delivery.street,
-                'EventLocation': buyer.delivery.city
-            })
+                'EventLocation': buyer.delivery.city,
+                'EventId': id.split("-")[0],
+                "Status": body.orders[0].status
+            }
+            message = JSON.stringify(m)
             console.log(body.orders[0].status)
             if (body.orders[0].status == 'COMPLETED') {
                 sendM.sendMessage(message, '127.0.0.1', 'UserSignedInForEvent');
@@ -521,8 +529,8 @@ function orderDetails(params, access_token) {
                     correlationId: request.correlationId,
                     emitedEvent: request.emitedEvent,
                     payload: {
-                        status: 200,
-                        body: {success:true, message:  message}
+                        status: 301,
+                        body: {success:true, message: m, address: "http://localhost:4200/paymentResult"}
                     }
                 });
             }

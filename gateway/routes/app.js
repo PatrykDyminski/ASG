@@ -75,8 +75,8 @@ router.post('/payment/createOrder', function(req,res){
     queue.sendMessageToEventsQueue('payment/createOrder', {body: req.body}, res)
 })
 
-router.get('/orderDetails/1', function(req,res){
-    queue.sendMessageToEventsQueue("orderDetails/1", {body: {}}, res)
+router.get('/orderDetails/:id', function(req,res){
+    queue.sendMessageToEventsQueue("orderDetails", {body: req.params.id}, res)
 })
 
 // NOTIFICATIONS

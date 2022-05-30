@@ -84,8 +84,9 @@ function parseResponse(message) {
     parsed = JSON.parse(message)
     caller = callers[parsed.correlationId]
     payload = parsed.payload
-
-    if((payload.status) && (payload.status == 302)) {
+    if (payload.status && payload.status == 301){
+      caller.status(301).redirect(payload.body.address)
+    } else if(payload.status == 302) {
         caller.emit(parsed.emitedEvent, payload.body.message)
     } else {
       caller.emit(parsed.emitedEvent, payload.body)
