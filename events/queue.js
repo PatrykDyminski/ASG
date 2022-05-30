@@ -5,7 +5,7 @@ var Event = require('./models/event');
 const { stringify } = require('querystring');
 const payuConfig = require('./payu.config.json');
 const { checkBuyer, checkEvent } = require('./validate.js');
-
+var ObjectId = require('mongodb').ObjectId;
 var channel = null
 
 function init() {
@@ -231,7 +231,7 @@ async function parseResponse(message){
       }
       else {
       await Event.updateOne({"_id":req.body._id},{$pull:{"frakcje.$[].zapisani":{"_id":req.body._idGracz}}},{safe:true,multi:true});
-      await Event.updateOne({"_id":req.body._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body._idGracz,imie:req.body.gracz}}},
+      await Event.updateOne({"_id":req.body._id},{$addToSet:{"frakcje.$[s].zapisani":{_id:req.body._idGracz,imie:req.body.gracz, czy_oplacone:false}}},
       {arrayFilters:[{"s.strona":req.body.strona}],upsert:true},function(error,result){
          if(error)
          console.log(error);
@@ -283,19 +283,20 @@ async function parseResponse(message){
       })
   }
   else if (request.emitedEvent === "updateUserPayment") {
-    Event.updateOne({_id:req.body.params._id},
+    let  req=request.payload;
+    Event.updateOne({_id: req.body._id},
         {
             $set: {
-                "frakcje.$[f].zapisani.$[z].czy_oplacone" : req.body.params.czy_oplacone  
+                "frakcje.$[f].zapisani.$[z].czy_oplacone" : req.body.czy_oplacone  
             }
         },
         {
             arrayFilters:[
                 {
-                    "f.strona": req.body.params.strona
+                    "f.strona": req.body.strona
                 },
                 {
-                    "z._id": req.body.params._idGracz
+                    "z._id": req.body._idGracz
                 }
             ]
         }
@@ -530,7 +531,7 @@ function orderDetails(params, access_token) {
                     emitedEvent: request.emitedEvent,
                     payload: {
                         status: 301,
-                        body: {success:true, message: m, address: "http://localhost:4200/paymentResult"}
+                        body: {success:true, message: m, address: "http://localhost:4200/paymentResult?id="+m.EventId}
                     }
                 });
             }

@@ -45,7 +45,7 @@ const io = require('socket.io')(http, {cors: {
         queue.sendMessageToEventsQueue('payment/createOrder', {body: data},socket)
       })
       socket.on('updateUserPayment', (data) => {
-        queue.sendMessageToEventsQueue('/updateUserPayment', {body: data},socket)
+        queue.sendMessageToEventsQueue('updateUserPayment', {body: data},socket)
       })
       socket.on('authorize', (data) => {
         queue.sendMessageToEventsQueue('payment/authorize', {body: data},socket)

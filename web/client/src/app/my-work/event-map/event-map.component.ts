@@ -526,7 +526,7 @@ paymentLogic():Observable<any>
 {
 
   this.eventS.socketEmitPay(this.loginS.user.mail, this.loginS.user.name.split(" ")[0],this.loginS.user.name.split(" ")[1],"123456789",this.eventToDisplay.nazwa,this.eventToDisplay.miejsce,
-  this.eventToDisplay.termin,this.eventToDisplay.oplata ) 
+  this.eventToDisplay.termin,this.eventToDisplay.oplata, String(this.eventToDisplay._id), this.enlistedFraction ); 
   return this.eventS.socketOnPay();
 }
 

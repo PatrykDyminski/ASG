@@ -42,8 +42,9 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatRippleModule} from '@angular/material/core';
 import { deleteDialogComponent } from './my-work/Snackbars/DeleteDialog';
-import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io'
-
+import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io';
+import { PaymentResultComponent } from './my-work/payment-result/payment-result.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
 
 @NgModule({
@@ -61,7 +62,8 @@ const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
     LoginComponent,
     EventFormComponent,
     EventEditorComponent,
-    deleteDialogComponent
+    deleteDialogComponent,
+    PaymentResultComponent
 
 
 
@@ -96,6 +98,7 @@ const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
     MatSidenavModule,
     MatRippleModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
     SocketIoModule.forRoot(config)
   ],
   exports:[ReactiveFormsModule, FormsModule, CommonModule],

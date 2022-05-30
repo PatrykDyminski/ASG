@@ -322,17 +322,17 @@ public  updateUserPayment(_ev:string, paymentStatus: boolean, userID:string, fra
 public socketEmitUpdatePayment(_ev:string, paymentStatus: boolean, userID:string, frakcja: string)
 {
   const options = {_id:_ev, strona:frakcja, _idGracz:userID, czy_oplacone: paymentStatus}
-  this.socket.emit('updatePayments',options);
+  this.socket.emit('updateUserPayment',options);
 }
 
 public socketOnUpdatePayment():Observable<any>
 {
-  return this.socket.fromEvent('updatePayments').pipe(catchError(this.handleError));
+  return this.socket.fromEvent('updateUserPayment').pipe(catchError(this.handleError));
 } 
 
-public socketEmitPay(_mail: string, _name: string, _surname:string, _phone:string, _eName:string, _location: string, _date: string, _price:number )
+public socketEmitPay(_mail: string, _name: string, _surname:string, _phone:string, _eName:string, _location: string, _date: string, _price:number, _eventId:string, frakcja:string )
 {
-  const options = {email: _mail ,phone: _phone, fname: _name, lname: _surname, eventName: _eName, ticketName: "Bilet na" + _eName, des: "Opis jest bardzo długi i rozbudowany", location:_location, price: _price*100, date: _date }
+  const options = {email: _mail ,phone: _phone, fname: _name, lname: _surname, eventName: _eName, ticketName: "Bilet na" + _eName, des:"Jesteś zapisany do frakcji:"+ frakcja, location:_location, price: _price*100, date: _date,extOrderId: _eventId+";"+frakcja }
   console.log(options);
   this.socket.emit('createOrder',options);
 }
@@ -348,6 +348,9 @@ public payForEvent()
   return this.http.put(this.url+'/api/updateEvent', options).pipe(catchError(this.handleError));
 }
 
+public socketOnOrderDetails():Observable<any>{
+  return this.socket.fromEvent('orderDetails').pipe(catchError(this.handleError));
+  }
 }
 
 
