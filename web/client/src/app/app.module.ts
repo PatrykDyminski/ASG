@@ -45,6 +45,7 @@ import { deleteDialogComponent } from './my-work/Snackbars/DeleteDialog';
 import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io';
 import { PaymentResultComponent } from './my-work/payment-result/payment-result.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { TokenResolveComponent } from './my-work/token-resolve/token-resolve.component';
 const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
 
 @NgModule({
@@ -63,7 +64,8 @@ const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
     EventFormComponent,
     EventEditorComponent,
     deleteDialogComponent,
-    PaymentResultComponent
+    PaymentResultComponent,
+    TokenResolveComponent
 
 
 

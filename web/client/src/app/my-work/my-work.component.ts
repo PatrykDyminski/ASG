@@ -40,7 +40,7 @@ export class MyWorkComponent implements OnInit {
   }
   loginF()
   {
-    window.location.replace("http://localhost:3002/auth/google");
+    window.location.replace("http://26.245.15.118:3002/auth/google");
   }
   logoutF()
   {

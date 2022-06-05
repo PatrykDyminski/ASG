@@ -12,7 +12,7 @@ export class LoginService {
   error=false;
   user={ userID:'', name:'',photo:'', mail:''};
   logged=false;
-  url='http://localhost:3002';
+  url='http://26.245.15.118:3002';
   constructor(private http: HttpClient) {
 
    }

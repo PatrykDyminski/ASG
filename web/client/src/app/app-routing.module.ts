@@ -8,7 +8,9 @@ import { EventMapComponent } from './my-work/event-map/event-map.component';
 import { LocationsListComponent } from './my-work/locations-list/locations-list.component';
 import { EquipmentComponent } from './my-work/equipment/equipment.component';
 import { LoginComponent } from './my-work/login/login.component';
-import {PaymentResultComponent} from './my-work/payment-result/payment-result.component'
+import { PaymentResultComponent } from './my-work/payment-result/payment-result.component'
+import { TokenResolveComponent } from  './my-work/token-resolve/token-resolve.component'
+//import { resolve } from 'dns';
 const routes: Routes = [{path: 'mySite', component: MySiteComponent},
 {path: '', component: MyWorkComponent, children: [
   {path: 'map', component: EventMapComponent},
@@ -16,7 +18,8 @@ const routes: Routes = [{path: 'mySite', component: MySiteComponent},
   {path: 'eq', component: EquipmentComponent},
   {path: 'login', component: LoginComponent},
   {path: '', component: EventMapComponent},
-  {path:'paymentResult', component:PaymentResultComponent}
+  { path: 'paymentResult', component: PaymentResultComponent },
+  {path: 'token', component: TokenResolveComponent}
   ]},
 
 
