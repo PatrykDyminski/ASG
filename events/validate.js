@@ -52,22 +52,22 @@ const event_schema = {
     "eventName":{
       "description": "Name of the event",
       "type": "string",
-      "minLength": 5
+      "minLength": 2
     },
     "ticketName": {
       "description": "Name of the ticket",
       "type": "string",
-      "minLength": 5
+      "minLength": 2
     },
     "description": {
       "description": "Description of the event",
       "type": "string",
-      "minLength": 20
+      "minLength": 2
     },
     "location": {
       "description": "Location of the event",
       "type": "string",
-      "minLength": 5
+      "minLength": 2
     },
     "price":{
       "description": "Price of the event in gr",
