@@ -25,7 +25,7 @@ module.exports = function (app, passport) {
         clientID:
           "360134415185-ru8j8nj84i016rbv6uaou37tgl0qn00s.apps.googleusercontent.com",
         clientSecret: "yomlk6mTDEbW0azLE2jk3cm7",
-        callbackURL: "http://localhost:3002/auth/google/callback",
+        callbackURL: "http://26.245.15.118.nip.io:3002/auth/google/callback",
       },
       function (accessToken, refreshToken, profile, done) {
         User.findOne({ googleID: profile.id }).then((currentUser) => {
@@ -66,13 +66,17 @@ module.exports = function (app, passport) {
     "/auth/google/callback",
     passport.authenticate("google", { session: false, failureRedirect: "/" }),
     function (req, res) {
-      //console.log(res);
+      
       const token = jwt.sign({ userID: req.user.googleID }, "POPOLUPO", {
         expiresIn: "24h",
       });
+      
       res.cookie("ASGjwt", token);
 
-      res.redirect("http://localhost:4200");
+      res.redirect("http://localhost:4200/token?token="+token);
+     
+     // console.log(res);
+    
     }
   );
   return passport;
