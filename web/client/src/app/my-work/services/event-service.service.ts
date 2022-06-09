@@ -21,7 +21,7 @@ export class EventServiceService {
   public eventToEdit: EventASG = null;
 
   
-  url='http://127.0.0.1:3010';
+  url='http://26.156.25.90:3010';
   constructor(private http: HttpClient, private socket: Socket) {
     //this.socket = io(this.socketUrl)
   }
@@ -332,7 +332,7 @@ public socketOnUpdatePayment():Observable<any>
 
 public socketEmitPay(_mail: string, _name: string, _surname:string, _phone:string, _eName:string, _location: string, _date: string, _price:number, _eventId:string, frakcja:string )
 {
-  const options = {email: _mail ,phone: _phone, fname: _name, lname: _surname, eventName: _eName, ticketName: "Bilet na" + _eName, des:"Jesteś zapisany do frakcji:"+ frakcja, location:_location, price: _price*100, date: _date,extOrderId: _eventId+";"+frakcja }
+  const options = {email: _mail ,phone: _phone, fname: _name, lname: _surname, eventName: _eName, ticketName: "Bilet na" + _eName, des:"Jesteś zapisany do frakcji:"+ frakcja, location:_location, price: _price*100, date: _date,extOrderId: _eventId+":"+frakcja }
   console.log(options);
   this.socket.emit('createOrder',options);
 }

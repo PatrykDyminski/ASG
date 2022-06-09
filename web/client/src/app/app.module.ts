@@ -46,7 +46,7 @@ import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io';
 import { PaymentResultComponent } from './my-work/payment-result/payment-result.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { TokenResolveComponent } from './my-work/token-resolve/token-resolve.component';
-const config: SocketIoConfig = {url: 'http://localhost:3010', options:{}}
+const config: SocketIoConfig = {url: 'http://26.156.25.90:3010', options:{}}
 
 @NgModule({
   declarations: [

@@ -90,7 +90,7 @@ function sendMessageToGatewayQueue(payload){
 
     message = JSON.stringify(payload)
     channel.publish(queueConfig.events.send.exchangeName, '', Buffer.from(message));
-    console.log("[MESSAGE TO " + queueConfig.events.send.queueName + "] " + message)
+    // console.log("[MESSAGE TO " + queueConfig.events.send.queueName + "] " + message)
 }
 
 
@@ -383,7 +383,7 @@ function createOrder(req, access_token){
     var statusCode;
     var responseUrl;
     console.log(req.body)
-    var extOrderId = req.body.extOrderId
+    var extOrderId = req.body.extOrderId.split(";")[0]
     var id = extOrderId+"-"+(+new Date).toString(36)
 
     if(checkBuyer(req.body) & checkEvent(req.body)) {
@@ -444,9 +444,9 @@ function createOrder(req, access_token){
             });
         });
         var postData = JSON.stringify({
-            "notifyUrl": "http://localhost:3010/api/paymentRecieved",
+            "notifyUrl": "http://26.156.25.90:3010/api/paymentRecieved",
             // "notifyUrl": payuConfig.notifyUrl,
-            "continueUrl": "http://localhost:3010/api/orderDetails/"+id,
+            "continueUrl": "http://26.156.25.90:3010/api/orderDetails/"+id,
             "customerIp": "127.0.0.1",
             "merchantPosId": payuConfig.merchantPosId,
             "description": body.eventName,
@@ -490,7 +490,7 @@ function createOrder(req, access_token){
 
 function orderDetails(params, access_token) {
     id = params.body;
-    console.log(id + " " + orders[id]);
+    console.log("\nOrder details: " + id + " " + orders[id]);
     var options = {
         'method': 'GET',
         'hostname': 'secure.snd.payu.com',
@@ -525,7 +525,8 @@ function orderDetails(params, access_token) {
             message = JSON.stringify(m)
             console.log(body.orders[0].status)
             if (body.orders[0].status == 'COMPLETED') {
-                sendM.sendMessage(message, '127.0.0.1', 'UserSignedInForEvent');
+                console.log("Sending message")
+                sendM.sendMessage(message, '26.156.25.90', 'UserSignedInForEvent');
                 sendMessageToGatewayQueue({
                     correlationId: request.correlationId,
                     emitedEvent: request.emitedEvent,

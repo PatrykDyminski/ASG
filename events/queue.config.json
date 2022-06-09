@@ -1,5 +1,5 @@
 {
-  "ip": "localhost",
+  "ip": "26.156.25.90",
   "port": 5672,
   "events": {
     "recieve": {

@@ -27,7 +27,7 @@ export class PaymentResultComponent implements OnInit {
     console.log(this.route);
     this.route.queryParams.subscribe(params => {
       let ids = params['id'];
-      let names = ids.split(';');  
+      let names = ids.split(':');  
       this.eventS.socketOnUpdatePayment().pipe(first()).subscribe(data => {
         console.log(data);
         this.router.navigateByUrl('');
